@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import mapboxgl from "mapbox-gl";
 import { useRouter } from "next/router";
-
+//@ts-ignore
 import {
   Flex,
   Heading,
@@ -59,7 +59,7 @@ const Dash: NextPage = () => {
     console.log(user2);
     setUser(user2 != null ? user2 : {});
   });
-
+  //@ts-ignore
   useEffect(() => {
     async function getUserDaosFromSupabase() {
       const { data, error } = await supabase
@@ -67,6 +67,7 @@ const Dash: NextPage = () => {
         .select()
         .eq(
           "signer_id",
+
           user.user_metadata != undefined ? user.user_metadata.provider_id : ""
         );
       if (error) {
