@@ -26,6 +26,13 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Popover,
+  PopoverTrigger,
+  Portal,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -322,14 +329,39 @@ const Home: NextPage = () => {
                 </Flex>
               </Flex>
               <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
-                <Avatar
-                  my={2}
-                  src={
-                    user.user_metadata != null
-                      ? user.user_metadata.avatar_url
-                      : ""
-                  }
-                />
+                <Popover>
+                  <PopoverTrigger>
+                    <Avatar
+                      my={2}
+                      src={
+                        user.user_metadata != null
+                          ? user.user_metadata.avatar_url
+                          : ""
+                      }
+                    />
+                  </PopoverTrigger>
+                  <Portal>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+
+                      <PopoverBody>
+                        <Button
+                          onClick={async () => {
+                            const { error } = await supabase.auth.signOut();
+                            if (error) {
+                              console.log(error);
+                            } else {
+                              window.location.pathname = "/";
+                            }
+                          }}
+                        >
+                          Logout
+                        </Button>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Portal>
+                </Popover>
                 <Text textAlign="center">
                   {user.user_metadata != null
                     ? user.user_metadata.full_name
