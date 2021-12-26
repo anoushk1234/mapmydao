@@ -89,7 +89,7 @@ export default function UserProfileEdit({
     }
   }
   async function sendRoleToSupabase(role: any) {
-    const id = user.user_metadata.provider_id;
+    const id = user?.user_metadata.provider_id;
     const { data, error } = await supabase
       .from("users")
       .update({
@@ -152,8 +152,8 @@ export default function UserProfileEdit({
               size="xl"
               src={
                 !file
-                  ? user.user_metadata != undefined
-                    ? user.user_metadata.avatar_url
+                  ? user?.user_metadata != undefined
+                    ? user?.user_metadata.avatar_url
                     : null
                   : file
               }
