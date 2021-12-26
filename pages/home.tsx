@@ -354,7 +354,7 @@ const Home: NextPage = () => {
                     Members
                   </Heading>
                   <Text fontSize="small" color="gray" ml={4}>
-                    Apr 2021
+                    {new Date().toLocaleDateString()}
                   </Text>
                 </Flex>
                 <IconButton aria-label="expand" icon={<FiCalendar />} />
@@ -370,148 +370,45 @@ const Home: NextPage = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      <Tr>
-                        <Td>
-                          <Flex align="center">
-                            <Avatar size="sm" mr={2} src="amazon.jpeg" />
-                            <Flex flexDir="column">
-                              <Heading size="sm" letterSpacing="tight">
-                                Amazon
-                              </Heading>
-                              <Text fontSize="sm" color="gray">
-                                Apr 24, 2021 at 1:40pm
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Td>
-                        <Td>Electronic Devices</Td>
-                        <Td isNumeric>+$2</Td>
-                        <Td isNumeric>
-                          <Text fontWeight="bold" display="inline-table">
-                            -$242
-                          </Text>
-                          .00
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td>
-                          <Flex align="center">
-                            <Avatar size="sm" mr={2} src="starbucks.png" />
-                            <Flex flexDir="column">
-                              <Heading size="sm" letterSpacing="tight">
-                                Starbucks
-                              </Heading>
-                              <Text fontSize="sm" color="gray">
-                                Apr 22, 2021 at 2:43pm
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Td>
-                        <Td>Cafe and restaurant</Td>
-                        <Td isNumeric>+$23</Td>
-                        <Td isNumeric>
-                          <Text fontWeight="bold" display="inline-table">
-                            -$32
-                          </Text>
-                          .00
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td>
-                          <Flex align="center">
-                            <Avatar size="sm" mr={2} src="youtube.png" />
-                            <Flex flexDir="column">
-                              <Heading size="sm" letterSpacing="tight">
-                                YouTube
-                              </Heading>
-                              <Text fontSize="sm" color="gray">
-                                Apr 13, 2021 at 11:23am
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Td>
-                        <Td>Social Media</Td>
-                        <Td isNumeric>+$4</Td>
-                        <Td isNumeric>
-                          <Text fontWeight="bold" display="inline-table">
-                            -$112
-                          </Text>
-                          .00
-                        </Td>
-                      </Tr>
-                      {display == "show" && (
-                        <>
-                          <Tr>
-                            <Td>
-                              <Flex align="center">
-                                <Avatar size="sm" mr={2} src="amazon.jpeg" />
-                                <Flex flexDir="column">
-                                  <Heading size="sm" letterSpacing="tight">
-                                    Amazon
-                                  </Heading>
-                                  <Text fontSize="sm" color="gray">
-                                    Apr 12, 2021 at 9:40pm
-                                  </Text>
+                      {daoMembers.map((member, index) => {
+                        if (display === "show") {
+                          return (
+                            <Tr key={index}>
+                              <Td>
+                                <Flex align="center">
+                                  <Avatar size="sm" mr={2} src={member.pfp} />
+                                  <Flex flexDir="column">
+                                    <Heading size="sm" letterSpacing="tight">
+                                      {member.username}
+                                    </Heading>
+                                  </Flex>
                                 </Flex>
-                              </Flex>
-                            </Td>
-                            <Td>Electronic Devices</Td>
-                            <Td isNumeric>+$2</Td>
-                            <Td isNumeric>
-                              <Text fontWeight="bold" display="inline-table">
-                                -$242
-                              </Text>
-                              .00
-                            </Td>
-                          </Tr>
-                          <Tr>
-                            <Td>
-                              <Flex align="center">
-                                <Avatar size="sm" mr={2} src="starbucks.png" />
-                                <Flex flexDir="column">
-                                  <Heading size="sm" letterSpacing="tight">
-                                    Starbucks
-                                  </Heading>
-                                  <Text fontSize="sm" color="gray">
-                                    Apr 10, 2021 at 2:10pm
-                                  </Text>
-                                </Flex>
-                              </Flex>
-                            </Td>
-                            <Td>Cafe and restaurant</Td>
-                            <Td isNumeric>+$23</Td>
-                            <Td isNumeric>
-                              <Text fontWeight="bold" display="inline-table">
-                                -$32
-                              </Text>
-                              .00
-                            </Td>
-                          </Tr>
-                          <Tr>
-                            <Td>
-                              <Flex align="center">
-                                <Avatar size="sm" mr={2} src="youtube.png" />
-                                <Flex flexDir="column">
-                                  <Heading size="sm" letterSpacing="tight">
-                                    YouTube
-                                  </Heading>
-                                  <Text fontSize="sm" color="gray">
-                                    Apr 7, 2021 at 9:03am
-                                  </Text>
-                                </Flex>
-                              </Flex>
-                            </Td>
-                            <Td>Social Media</Td>
-                            <Td isNumeric>+$4</Td>
-                            <Td isNumeric>
-                              <Text fontWeight="bold" display="inline-table">
-                                -$112
-                              </Text>
-                              .00
-                            </Td>
-                          </Tr>
-                        </>
-                      )}
+                              </Td>
+                              <Td>{member.role}</Td>
+                              <Td isNumeric>Goa</Td>
+                            </Tr>
+                          );
+                        } else {
+                          if (index === 0) {
+                            return (
+                              <Tr key={index}>
+                                <Td>
+                                  <Flex align="center">
+                                    <Avatar size="sm" mr={2} src={member.pfp} />
+                                    <Flex flexDir="column">
+                                      <Heading size="sm" letterSpacing="tight">
+                                        {member.username}
+                                      </Heading>
+                                    </Flex>
+                                  </Flex>
+                                </Td>
+                                <Td>{member.role}</Td>
+                                <Td isNumeric>Goa</Td>
+                              </Tr>
+                            );
+                          }
+                        }
+                      })}
                     </Tbody>
                   </Table>
                 </Flex>
