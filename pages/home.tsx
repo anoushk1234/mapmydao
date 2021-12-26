@@ -66,15 +66,7 @@ const Home: NextPage = () => {
     x: -104.9876,
     y: 39.7405,
   });
-  const [features, setFeatures] = useState<any[]>([
-    {
-      id: 1,
-      geometry: {
-        type: "Point",
-        coordinates: [xy.x, xy.y],
-      },
-    },
-  ]);
+  const [features, setFeatures] = useState<any[]>([]);
   useEffect(() => {
     const user2 = supabase.auth.user();
     console.log(user2);
@@ -82,7 +74,7 @@ const Home: NextPage = () => {
     setUserID(user2 != null ? user2.user_metadata.provider_id : "");
   }, []);
 
-  useEffect(() => {}, [userID]);
+  // useEffect(() => {}, [userID]);
 
   useEffect(() => {
     const getSupabaseUser = async () => {
@@ -115,21 +107,43 @@ const Home: NextPage = () => {
     });
   }, [userID, user, dao]);
   useEffect(() => {
-    daoMembers.forEach((member) => {
-      console.log(member);
-      setFeatures([
-        ...features,
-        {
-          id: 1,
-          geometry: {
-            type: "Point",
-            coordinates: [member.location.longitude, member.location.latitude],
-          },
-        },
-      ]);
-    });
-    console.log(features);
-  }, [dao, daoMembers]);
+    console.log("dao meme use effect fored");
+    daoMembers.length > 0
+      ? daoMembers.forEach((member, index) => {
+          console.log(member);
+          // index == 0
+          //   ? setFeatures([
+          //       {
+          //         id: index + 1,
+          //         geometry: {
+          //           type: "Point",
+          //           coordinates: [
+          //             member.location.longitude,
+          //             member.location.latitude,
+          //           ],
+          //         },
+          //       },
+          //     ])
+          //   :
+          if (member.location != null) {
+            setFeatures((features) => [
+              ...features,
+              {
+                id: index + 1,
+                geometry: {
+                  type: "Point",
+                  coordinates: [
+                    member.location.longitude,
+                    member.location.latitude,
+                  ],
+                },
+              },
+            ]);
+          }
+        })
+      : console.log("no dao members in use effect");
+    console.log(features, "features");
+  }, [daoMembers]); // eslint-disable-line
   useEffect(() => {
     const { x, y } = xy;
     console.log(x, y, "xy");
@@ -155,27 +169,48 @@ const Home: NextPage = () => {
       map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
       map.on("moveend", async () => {
         // get center coordinates
-        const { x, y } = xy;
-        const results = {
-          features: [
-            {
-              id: 1,
-              geometry: {
-                type: "Point",
-                coordinates: [x, y],
-              },
-            },
-          ],
-        };
+
+        // const results = {
+        //   features: [
+        //     {
+        //       id: 1,
+        //       geometry: {
+        //         type: "Point",
+        //         coordinates: [x, y],
+        //       },
+        //     },
+        //   ],
+        // };
         // iterate through the feature collection and append marker to the map for each feature
         features.forEach((result, index) => {
           const { id, geometry } = result;
+
           // create marker node
           const markerNode = document.createElement("div");
-          console.log(daoMembers);
+          // if (index === 0) {
+          //   features.forEach((result, index) => {
+          //     features.length - 1 != index
+          //       ? (features[index] = features[index + 1])
+          //       : null;
+          //     console.log(features);
+          //   });
+          // }
+          // console.log(features);
+          // daoMembers[index].user_id != userID
+          //   console.log(daoMembers);
+
+          console.log(
+            index,
+            daoMembers[index].username,
+            daoMembers[index].user_id,
+            userID,
+            daoMembers[index].location,
+            daoMembers,
+            features
+          );
           daoMembers[index] != undefined
             ? ReactDOM.render(
-                <Marker id={id} pfp={daoMembers[index].pfp} />,
+                <Marker id={index} pfp={daoMembers[index].pfp} />,
                 markerNode
               )
             : console.log("no dao member");
@@ -186,8 +221,8 @@ const Home: NextPage = () => {
         });
       });
 
-      // clean up on unmount
-      // return () => map.remove();
+      // clean  up on unmount
+      return () => map.remove();
     }
   }, [xy, daoMembers, features]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
