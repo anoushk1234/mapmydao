@@ -40,6 +40,7 @@ import {
   FiBell,
 } from "react-icons/fi";
 import axios from "axios";
+import Logo from "./components/ui/Logo";
 import { supabase } from "../utils/supabaseClient";
 declare const window: any;
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
@@ -139,16 +140,23 @@ const Dash: NextPage = () => {
               h={[null, null, "100vh"]}
               justifyContent="space-between"
             >
-              <Flex flexDir="column" as="nav">
-                <Heading
-                  mt={50}
-                  mb={[25, 50, 100]}
-                  fontSize={["4xl", "4xl", "2xl", "3xl", "4xl"]}
-                  alignSelf="center"
-                  letterSpacing="tight"
-                >
-                  MapMyDao
-                </Heading>
+              <Flex>
+                <Flex ml={4} mt={4} mb={4} align="center">
+                  <Flex flexDir="column" as="nav">
+                    <Heading
+                      mt={50}
+                      mb={[25, 50, 100]}
+                      fontSize={["2xl", "2xl", "2xl", "2xl", "2xl"]}
+                      alignSelf="center"
+                      letterSpacing="tight"
+                    >
+                      MapMyDao
+                    </Heading>
+                  </Flex>
+                  <Box mt="-5rem">
+                    <Logo />{" "}
+                  </Box>
+                </Flex>
                 <Flex
                   flexDir={["row", "row", "column", "column", "column"]}
                   align={[

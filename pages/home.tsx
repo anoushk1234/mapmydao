@@ -45,6 +45,7 @@ import UserProfileEdit from "./components/ProfileEdit";
 declare const window: any;
 import Marker from "./components/Marker";
 import ReactDOM from "react-dom";
+import Logo from "./components/ui/Logo";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
@@ -255,15 +256,22 @@ const Home: NextPage = () => {
               justifyContent="space-between"
             >
               <Flex flexDir="column" as="nav">
-                <Heading
-                  mt={50}
-                  mb={[25, 50, 100]}
-                  fontSize={["4xl", "4xl", "2xl", "3xl", "4xl"]}
-                  alignSelf="center"
-                  letterSpacing="tight"
-                >
-                  MapMyDao
-                </Heading>
+                <Flex ml={4} mt={4} mb={4} align="center">
+                  <Flex flexDir="column" as="nav">
+                    <Heading
+                      mt={50}
+                      mb={[25, 50, 100]}
+                      fontSize={["2xl", "2xl", "2xl", "2xl", "2xl"]}
+                      alignSelf="center"
+                      letterSpacing="tight"
+                    >
+                      MapMyDao
+                    </Heading>
+                  </Flex>
+                  <Box mt="-5rem">
+                    <Logo />{" "}
+                  </Box>
+                </Flex>
                 <Flex
                   flexDir={["row", "row", "column", "column", "column"]}
                   align={[
