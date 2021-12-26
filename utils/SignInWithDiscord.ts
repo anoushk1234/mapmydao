@@ -9,7 +9,7 @@ export default async function signInWithDiscord(loc: any) {
     {
       redirectTo:
         process.env.NEXT_PUBLIC_ENV === "prod"
-          ? `${process.env.NEXT_PUBLIC_URL}/${loc}`
+          ? `${process.env.NEXT_PUBLIC_PUB_URL}${loc}`
           : `http://localhost:3000/${loc}`,
     }
   );
