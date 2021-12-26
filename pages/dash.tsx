@@ -4,6 +4,9 @@ import Head from "next/head";
 import mapboxgl from "mapbox-gl";
 import { useRouter } from "next/router";
 //@ts-ignore
+import Marker from "./components/Marker";
+import ReactDOM from "react-dom";
+
 import {
   Flex,
   Heading,
@@ -26,6 +29,13 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
+  Popover,
+  PopoverTrigger,
+  Portal,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverBody,
+  PopoverContent,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -42,6 +52,7 @@ import {
 import axios from "axios";
 import Logo from "./components/ui/Logo";
 import { supabase } from "../utils/supabaseClient";
+import UserProfileEdit from "./components/ProfileEdit";
 declare const window: any;
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 const Dash: NextPage = () => {
@@ -49,67 +60,175 @@ const Dash: NextPage = () => {
   const [display, changeDisplay] = useState("hide");
   const [value, changeValue] = useState(1);
   const [tab, setTab] = useState("map");
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState<any>({
+    usermetadata: { provider_id: "", role: "" },
+  });
+  const [userID, setUserID] = useState("");
   const [daoList, setDaoList] = useState([]);
   const [dao, setDao] = useState({});
   const [daoMembers, setDaoMembers] = useState([]);
   const router = useRouter();
-
+  const [xy, setXY] = useState({
+    x: -104.9876,
+    y: 39.7405,
+  });
+  const [features, setFeatures] = useState<any[]>([]);
   useEffect(() => {
     const user2 = supabase.auth.user();
     console.log(user2);
     setUser(user2 != null ? user2 : {});
-  });
+    setUserID(user2 != null ? user2.uid : "");
+  }, []);
   //@ts-ignore
   useEffect(() => {
-    async function getUserDaosFromSupabase() {
-      const { data, error } = await supabase
-        .from("daos")
-        .select()
-        .eq(
-          "signer_id",
+    const getSupabaseUser = async () => {
+      if (user != undefined) {
+        const { data, error } = await supabase
+          .from("users")
+          .select()
+          .eq("user_id", userID);
 
-          user.user_metadata != undefined ? user.user_metadata.provider_id : ""
-        );
-      if (error) {
-        console.log(error);
+        data[0] != undefined
+          ? setXY({
+              x: data[0].location.longitude,
+              y: data[0].location.latitude,
+            })
+          : console.log("no data");
+
+        data[0] != undefined ? setDao(data[0].dao) : console.log("no dao");
       }
-      console.log(data.length > 0 ? data[0].uid : {});
-      data.length > 0 ? setDaoList(data) : null;
-    }
-    getUserDaosFromSupabase();
-  }, [user]);
-
-  useEffect(() => {
+    };
     async function getDaoMembersFromSupabase() {
-      // dao ? console.log(dao) : console.log("no dao");
       const { data, error } = await supabase
         .from("users")
         .select()
-        .eq("dao", dao);
-      if (error) {
-        console.log(error);
-      }
+        .match({ dao: dao });
       console.log(data);
       setDaoMembers(data as any);
     }
-    dao ? getDaoMembersFromSupabase() : null;
-  }, [dao, user]);
+    getSupabaseUser().then(() => {
+      getDaoMembersFromSupabase();
+    });
+  }, [userID, user, dao]);
   useEffect(() => {
-    const map = new mapboxgl.Map({
-      container: mapContainerRef.current || "map",
-      // See style options here: https://docs.mapbox.com/api/maps/#styles
-      style: "mapbox://styles/mapbox/streets-v11",
-      center: [-104.9876, 39.7405],
-      zoom: 12.5,
-    }) as any;
+    console.log("dao meme use effect fored");
+    daoMembers.length > 0
+      ? daoMembers.forEach((member, index) => {
+          console.log(member);
+          // index == 0
+          //   ? setFeatures([
+          //       {
+          //         id: index + 1,
+          //         geometry: {
+          //           type: "Point",
+          //           coordinates: [
+          //             member.location.longitude,
+          //             member.location.latitude,
+          //           ],
+          //         },
+          //       },
+          //     ])
+          //   :
+          if (member.location != null) {
+            setFeatures((features) => [
+              ...features,
+              {
+                id: index + 1,
+                geometry: {
+                  type: "Point",
+                  coordinates: [
+                    member.location.longitude,
+                    member.location.latitude,
+                  ],
+                },
+              },
+            ]);
+          }
+        })
+      : console.log("no dao members in use effect");
+    console.log(features, "features");
+  }, [daoMembers]); // eslint-disable-line
+  useEffect(() => {
+    const { x, y } = xy;
+    console.log(x, y, "xy");
+    if (x != undefined && y != undefined && tab === "map") {
+      const map = new mapboxgl.Map({
+        container: mapContainerRef.current || "map", // container ID
+        style: "mapbox://styles/mapbox/streets-v11", // style URL
+        center: [x, y], // starting position
+        zoom: 8, // starting zoom
+      });
+      map.addControl(
+        new mapboxgl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          // When active the map will receive updates to the device's location as it changes.
+          trackUserLocation: true,
+          // Draw an arrow next to the location dot to indicate which direction the device is heading.
+          showUserHeading: true,
+        })
+      );
+      // add navigation control (the +/- zoom buttons)
+      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+      map.on("moveend", async () => {
+        // get center coordinates
 
-    // add navigation control (the +/- zoom buttons)
-    map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+        // const results = {
+        //   features: [
+        //     {
+        //       id: 1,
+        //       geometry: {
+        //         type: "Point",
+        //         coordinates: [x, y],
+        //       },
+        //     },
+        //   ],
+        // };
+        // iterate through the feature collection and append marker to the map for each feature
+        features.forEach((result, index) => {
+          const { id, geometry } = result;
 
-    // clean up on unmount
-    return () => map.remove();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+          // create marker node
+          const markerNode = document.createElement("div");
+          // if (index === 0) {
+          //   features.forEach((result, index) => {
+          //     features.length - 1 != index
+          //       ? (features[index] = features[index + 1])
+          //       : null;
+          //     console.log(features);
+          //   });
+          // }
+          // console.log(features);
+          // daoMembers[index].user_id != userID
+          //   console.log(daoMembers);
+
+          console.log(
+            index,
+            daoMembers[index].username,
+            daoMembers[index].user_id,
+            userID,
+            daoMembers[index].location,
+            daoMembers,
+            features
+          );
+          daoMembers[index] != undefined
+            ? ReactDOM.render(
+                <Marker id={index} pfp={daoMembers[index].pfp} />,
+                markerNode
+              )
+            : console.log("no dao member");
+          // add marker to map
+          new mapboxgl.Marker(markerNode)
+            .setLngLat(geometry.coordinates as [number, number])
+            .addTo(map);
+        });
+      });
+
+      // clean  up on unmount
+      return () => map.remove();
+    }
+  }, [xy, daoMembers, features]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -140,7 +259,7 @@ const Dash: NextPage = () => {
               h={[null, null, "100vh"]}
               justifyContent="space-between"
             >
-              <Flex>
+              <Flex flexDir="column" as="nav">
                 <Flex ml={4} mt={4} mb={4} align="center">
                   <Flex flexDir="column" as="nav">
                     <Heading
@@ -168,40 +287,78 @@ const Dash: NextPage = () => {
                   ]}
                   wrap={["wrap", "wrap", "nowrap", "nowrap", "nowrap"]}
                   justifyContent="center"
+                  p={4}
                 >
                   <Flex className="sidebar-items" mr={[2, 6, 0, 0, 0]} mb={4}>
-                    <Link display={["none", "none", "flex", "flex", "flex"]}>
-                      <Icon as={FiMap} fontSize="2xl" className="active-icon" />
-                    </Link>
-                    <Link
+                    {/* <Link display={["none", "none", "flex", "flex", "flex"]}>
+                    
+                   </Link> */}
+                    <Button
+                      leftIcon={<FiMap />}
+                      onClick={
+                        tab === "map"
+                          ? () => setTab("home")
+                          : () => setTab("map")
+                      }
                       _hover={{ textDecor: "none" }}
                       display={["flex", "flex", "none", "flex", "flex"]}
                     >
                       <Text className="active">Map</Text>
-                    </Link>
+                    </Button>
                   </Flex>
                   <Flex className="sidebar-items" mr={[2, 6, 0, 0, 0]}>
-                    <Link display={["none", "none", "flex", "flex", "flex"]}>
-                      <Icon as={FiHome} fontSize="2xl" />
-                    </Link>
-                    <Link
+                    {/* <Link display={["none", "none", "flex", "flex", "flex"]}>
+                     <Icon as={FiHome} fontSize="2xl" />
+                   </Link> */}
+                    <Button
+                      onClick={
+                        tab === "home"
+                          ? () => setTab("map")
+                          : () => setTab("home")
+                      }
+                      leftIcon={<FiHome />}
                       _hover={{ textDecor: "none" }}
                       display={["flex", "flex", "none", "flex", "flex"]}
                     >
-                      <Text>Normal View</Text>
-                    </Link>
+                      <Text>Home</Text>
+                    </Button>
                   </Flex>
                 </Flex>
               </Flex>
               <Flex flexDir="column" alignItems="center" mb={10} mt={5}>
-                <Avatar
-                  my={2}
-                  src={
-                    user.user_metadata != null
-                      ? user.user_metadata.avatar_url
-                      : ""
-                  }
-                />
+                <Popover>
+                  <PopoverTrigger>
+                    <Avatar
+                      my={2}
+                      src={
+                        user.user_metadata != null
+                          ? user.user_metadata.avatar_url
+                          : ""
+                      }
+                    />
+                  </PopoverTrigger>
+                  <Portal>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+
+                      <PopoverBody>
+                        <Button
+                          onClick={async () => {
+                            const { error } = await supabase.auth.signOut();
+                            if (error) {
+                              console.log(error);
+                            } else {
+                              window.location.pathname = "/";
+                            }
+                          }}
+                        >
+                          Logout
+                        </Button>
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Portal>
+                </Popover>
                 <Text textAlign="center">
                   {user.user_metadata != null
                     ? user.user_metadata.full_name
@@ -486,6 +643,13 @@ const Dash: NextPage = () => {
                 <></>
               )}
             </Select>
+            <UserProfileEdit
+              user={user}
+              dao={dao}
+              setXY={setXY}
+              xy={xy}
+              userID={userID}
+            />
           </Flex>
         </Flex>
       }

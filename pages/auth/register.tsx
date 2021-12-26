@@ -35,7 +35,7 @@ const Login: NextPage = () => {
             onClick={async () => {
               await signInWithDiscord("dash");
             }}
-            maxW="200px"
+            maxW="300px"
             maxH={50}
             rightIcon={<FaDiscord />}
           >

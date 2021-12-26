@@ -98,7 +98,7 @@ const Home: NextPage = () => {
               y: data[0].location.latitude,
             })
           : console.log("no data");
-
+        console.log(data[0].dao, "dao");
         data[0] != undefined ? setDao(data[0].dao) : console.log("no dao");
       }
     };
