@@ -20,6 +20,7 @@ import { FaWindowClose, FaLocationArrow } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 import Geocode from "react-geocode";
 import { toast } from "react-toastify";
+import axios from "axios";
 export default function UserProfileEdit({
   user,
   dao,
@@ -54,6 +55,18 @@ export default function UserProfileEdit({
     console.warn(`ERROR(${err.code}): ${err.message}`);
   }
 
+  const uploadToCloudinary = async () => {
+    const formData = new FormData();
+
+    formData.append("file", file as any);
+    formData.append("upload_preset", "public");
+
+    const post = await axios.post(
+      "https://api.cloudinary.com/v1_1/metapass/image/upload",
+      formData
+    );
+    return post.data.secure_url;
+  };
   //   useEffect(() => {
   async function sendCoordinatesToSupabase() {
     if (userID) {
@@ -98,6 +111,17 @@ export default function UserProfileEdit({
       .match({ user_id: id });
     console.log(data);
     toast.success("profile updated");
+  }
+  async function sendPfpToSupabase(pfp: any) {
+    const id = user?.user_metadata.provider_id;
+    const { data, error } = await supabase
+      .from("users")
+      .update({
+        pfp: pfp,
+      })
+      .match({ user_id: id });
+    console.log(data);
+    toast.success("pfp updated");
   }
 
   //     sendCoordinatesToSupabase();
@@ -177,6 +201,7 @@ export default function UserProfileEdit({
               onChange={(e) => {
                 e.preventDefault();
                 e.target.files ? setFile(e.target.files[0]) : null;
+                console.log(file, "file");
               }}
             />
           </Center>
@@ -224,7 +249,10 @@ export default function UserProfileEdit({
         p={7}
         borderRadius={15}
         onClick={() => {
-          sendRoleToSupabase(role);
+          uploadToCloudinary().then((url) => {
+            sendRoleToSupabase(role);
+            sendPfpToSupabase(url);
+          });
         }}
       >
         Update Profile
