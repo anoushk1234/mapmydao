@@ -165,7 +165,7 @@ export default function UserProfileEdit({
       mt={[4, 6]}
     >
       <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
-        You Profile
+        Your Profile
       </Heading>
       <FormControl id="userName">
         <FormLabel>User Icon</FormLabel>

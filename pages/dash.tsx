@@ -81,6 +81,15 @@ const Dash: NextPage = () => {
   }, []);
   //@ts-ignore
   useEffect(() => {
+    const getDaoList = async () => {
+      const { data, error } = await supabase
+        .from("daos")
+        .select()
+        .eq("signer_id", user?.user_metadata?.provider_id);
+      console.log(data, "daolist get");
+      setDaoList(data as any);
+    };
+
     const getSupabaseUser = async () => {
       if (user != undefined) {
         const { data, error } = await supabase
@@ -108,6 +117,7 @@ const Dash: NextPage = () => {
     }
     getSupabaseUser().then(() => {
       getDaoMembersFromSupabase();
+      getDaoList();
     });
   }, [userID, user, dao]);
   useEffect(() => {
