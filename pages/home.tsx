@@ -92,12 +92,12 @@ const Home: NextPage = () => {
     //   window.location.reload();
     // }
     const reloadCount = sessionStorage.getItem("reloadCount");
-    if (reloadCount < 2) {
-      sessionStorage.setItem("reloadCount", String(reloadCount + 1));
-      window.location.reload();
-    } else {
-      sessionStorage.removeItem("reloadCount");
-    }
+    // if (reloadCount < 1) {
+    //   sessionStorage.setItem("reloadCount", String(reloadCount + 1));
+    //   window.location.reload();
+    // } else {
+    //   sessionStorage.removeItem("reloadCount");
+    // }
   }, []);
 
   // useEffect(() => {}, [userID]);
@@ -148,7 +148,7 @@ const Home: NextPage = () => {
       getDaoMembersFromSupabase();
     });
     console.log(daoMembers, "daomems");
-  }, [userID, user, dao]);
+  }, [userID, dao]);
 
   // useEffect(() => {
   //   daoMembers.forEach((member) => {});
@@ -249,15 +249,15 @@ const Home: NextPage = () => {
           const findDaoMemberbyUser_id = (user_id: string) => {
             return daoMembers.find((member) => member.user_id === user_id);
           };
-          console.log(
-            index,
-            daoMembers[index]?.username,
-            daoMembers[index]?.user_id,
-            userID,
-            daoMembers[index]?.location,
-            daoMembers,
-            features
-          );
+          // console.log(
+          //   index,
+          //   daoMembers[index]?.username,
+          //   daoMembers[index]?.user_id,
+          //   userID,
+          //   daoMembers[index]?.location,
+          //   daoMembers,
+          //   features
+          // );
           const UserbyUID = findDaoMemberbyUser_id(id);
           console.log(UserbyUID, "userbyUID");
           UserbyUID != undefined
@@ -276,7 +276,7 @@ const Home: NextPage = () => {
       // clean  up on unmount
       return () => map.remove();
     }
-  }, [xy, daoMembers, features, dao]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [xy, features, mapContainerRef.current]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <Head>
