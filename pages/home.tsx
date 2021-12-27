@@ -54,6 +54,7 @@ declare const window: any;
 import Marker from "./components/Marker";
 import ReactDOM from "react-dom";
 import Logo from "./components/ui/Logo";
+import { reverseGeocode } from "../utils/reverseGeocode";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
@@ -62,6 +63,12 @@ const Home: NextPage = () => {
   const [value, changeValue] = useState(1);
   const [tab, setTab] = useState("map");
   const [userID, setUserID] = useState("");
+  // const [region, setRegion] = useState([
+  //   {
+  //     userid: "",
+  //     reg: "",
+  //   },
+  // ]);
 
   const [user, setUser] = useState<any>({
     usermetadata: { provider_id: "", role: "" },
@@ -81,6 +88,16 @@ const Home: NextPage = () => {
     console.log(user2);
     setUser(user2 != null ? user2 : {});
     setUserID(user2 != null ? user2?.user_metadata?.provider_id : "");
+    // for (let index = 0; index < 1; index++) {
+    //   window.location.reload();
+    // }
+    const reloadCount = sessionStorage.getItem("reloadCount");
+    if (reloadCount < 2) {
+      sessionStorage.setItem("reloadCount", String(reloadCount + 1));
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem("reloadCount");
+    }
   }, []);
 
   // useEffect(() => {}, [userID]);
@@ -134,18 +151,9 @@ const Home: NextPage = () => {
   }, [userID, user, dao]);
 
   // useEffect(() => {
-  //   const getDaoList = async () => {
-  //     if (user) {
-  //       const { data, error } = await supabase
-  //         .from("daos")
-  //         .select()
-  //         .eq("signer_id", user?.user_metadata?.provider_id);
-  //       console.log(data, "daolist get");
-  //       setDaoList(data as any);
-  //     }
-  //     getDaoList();
-  //   };
-  // }, [user]);
+  //   daoMembers.forEach((member) => {});
+  // }, [daoMembers]);
+
   useEffect(() => {
     console.log("dao meme use effect fored");
     daoMembers.length > 0
@@ -453,26 +461,29 @@ const Home: NextPage = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      {daoMembers.map((member, index) => {
-                        if (display === "show") {
+                      {daoMembers.map((member: any, index) => {
+                        if (display === "show" && member?.location) {
                           return (
                             <Tr key={index}>
                               <Td>
                                 <Flex align="center">
                                   <Avatar size="sm" mr={2} src={member.pfp} />
                                   <Flex flexDir="column">
-                                    <Heading size="sm" letterSpacing="tight">
+                                    <Heading size="sm" letterSpacing="tighters">
                                       {member.username}
                                     </Heading>
                                   </Flex>
                                 </Flex>
                               </Td>
                               <Td>{member.role}</Td>
-                              <Td isNumeric>Goa</Td>
+                              <Td letterSpacing="tight">
+                                {member.location.region ??
+                                  "Location not updated"}
+                              </Td>
                             </Tr>
                           );
                         } else {
-                          if (index === 0) {
+                          if (index === 0 && member?.location) {
                             return (
                               <Tr key={index}>
                                 <Td>
@@ -486,7 +497,10 @@ const Home: NextPage = () => {
                                   </Flex>
                                 </Td>
                                 <Td>{member.role}</Td>
-                                <Td isNumeric>Goa</Td>
+                                <Td>
+                                  {member.location.region ??
+                                    "Location not found"}
+                                </Td>
                               </Tr>
                             );
                           }

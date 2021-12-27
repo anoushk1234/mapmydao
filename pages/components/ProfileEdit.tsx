@@ -21,6 +21,7 @@ import React, { useState, useEffect } from "react";
 import Geocode from "react-geocode";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { reverseGeocode } from "../../utils/reverseGeocode";
 export default function UserProfileEdit({
   user,
   dao,
@@ -70,6 +71,8 @@ export default function UserProfileEdit({
   //   useEffect(() => {
   async function sendCoordinatesToSupabase() {
     if (userID) {
+      const reg = await reverseGeocode(long, lat);
+      console.log(reg);
       const { data, error } = await supabase
         .from("users")
         .update({
@@ -77,6 +80,7 @@ export default function UserProfileEdit({
             longitude: long,
             latitude: lat,
             accuracy: acc,
+            region: reg,
           },
         })
         .match({ user_id: userID });
@@ -84,6 +88,23 @@ export default function UserProfileEdit({
       toast.success("location updated");
     }
   }
+  // async function sendRegiontoSupabase() {
+  //   if (userID) {
+  //     const reg = await reverseGeocode(long,lat)
+  //     const { data, error } = await supabase
+  //       .from("users")
+  //       .update({
+  //         location: {
+  //           longitude: long,
+  //           latitude: lat,
+  //           accuracy: acc,
+  //         },
+  //       })
+  //       .match({ user_id: userID });
+  //     console.log(data);
+  //     toast.success("location updated");
+  //   }
+  // }
   async function getSupabaseUser() {
     const { data, error } = await supabase
       .from("users")
