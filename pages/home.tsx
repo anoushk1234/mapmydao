@@ -137,7 +137,7 @@ const Home: NextPage = () => {
             setFeatures((features) => [
               ...features,
               {
-                id: index + 1,
+                id: member?.user_id,
                 geometry: {
                   type: "Point",
                   coordinates: [
@@ -206,19 +206,23 @@ const Home: NextPage = () => {
           // console.log(features);
           // daoMembers[index].user_id != userID
           //   console.log(daoMembers);
-
+          const findDaoMemberbyUser_id = (user_id: string) => {
+            return daoMembers.find((member) => member.user_id === user_id);
+          };
           console.log(
             index,
-            daoMembers[index].username,
-            daoMembers[index].user_id,
+            daoMembers[index]?.username,
+            daoMembers[index]?.user_id,
             userID,
-            daoMembers[index].location,
+            daoMembers[index]?.location,
             daoMembers,
             features
           );
-          daoMembers[index] != undefined
+          const UserbyUID = findDaoMemberbyUser_id(id);
+          console.log(UserbyUID, "userbyUID");
+          UserbyUID != undefined
             ? ReactDOM.render(
-                <Marker id={index} pfp={daoMembers[index].pfp} />,
+                <Marker id={id} pfp={UserbyUID?.pfp} />,
                 markerNode
               )
             : console.log("no dao member");
