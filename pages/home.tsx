@@ -103,15 +103,6 @@ const Home: NextPage = () => {
   // useEffect(() => {}, [userID]);
 
   useEffect(() => {
-    const getDaoList = async () => {
-      const { data, error } = await supabase
-        .from("daos")
-        .select()
-        .eq("signer_id", user?.user_metadata?.provider_id);
-      console.log(data, "daolist get");
-      setDaoList(data as any);
-    };
-
     const getSupabaseUser = async () => {
       if (user != undefined) {
         const { data, error } = await supabase
@@ -144,15 +135,22 @@ const Home: NextPage = () => {
     //   });
     // });
     getSupabaseUser();
-    getDaoList().then(() => {
-      getDaoMembersFromSupabase();
-    });
+    getDaoMembersFromSupabase();
+
     console.log(daoMembers, "daomems");
   }, [userID, dao]);
 
-  // useEffect(() => {
-  //   daoMembers.forEach((member) => {});
-  // }, [daoMembers]);
+  useEffect(() => {
+    const getDaoList = async () => {
+      const { data, error } = await supabase
+        .from("daos")
+        .select()
+        .eq("signer_id", user?.user_metadata?.provider_id);
+      console.log(data, "daolist get");
+      setDaoList(data as any);
+    };
+    getDaoList();
+  }, [user]);
 
   useEffect(() => {
     console.log("dao meme use effect fored");
