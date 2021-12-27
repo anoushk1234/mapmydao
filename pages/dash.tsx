@@ -23,6 +23,7 @@ import {
   Td,
   Select,
   Divider,
+  Image,
   Link,
   Box,
   Button,
@@ -77,7 +78,7 @@ const Dash: NextPage = () => {
     const user2 = supabase.auth.user();
     console.log(user2);
     setUser(user2 != null ? user2 : {});
-    setUserID(user2 != null ? user2.uid : "");
+    setUserID(user2 != null ? user2.user_metadata.provider_id : "");
   }, []);
   //@ts-ignore
   useEffect(() => {
@@ -96,15 +97,17 @@ const Dash: NextPage = () => {
           .from("users")
           .select()
           .eq("user_id", userID);
-
-        data[0] != undefined
-          ? setXY({
-              x: data[0].location.longitude,
-              y: data[0].location.latitude,
-            })
-          : console.log("no data");
-
-        data[0] != undefined ? setDao(data[0].dao) : console.log("no dao");
+        console.log(data, userID, "supabase user");
+        if (data != null && data != undefined && data.length > 0) {
+          data[0] != undefined
+            ? setXY({
+                x: data[0].location.longitude,
+                y: data[0].location.latitude,
+              })
+            : console.log("no data");
+          console.log(data[0].dao, "dao");
+          setDao(data[0].dao);
+        }
       }
     };
     async function getDaoMembersFromSupabase() {
@@ -116,8 +119,9 @@ const Dash: NextPage = () => {
       setDaoMembers(data as any);
     }
     getSupabaseUser().then(() => {
-      getDaoMembersFromSupabase();
-      getDaoList();
+      getDaoList().then(() => {
+        getDaoMembersFromSupabase();
+      });
     });
   }, [userID, user, dao]);
   useEffect(() => {
@@ -143,7 +147,7 @@ const Dash: NextPage = () => {
             setFeatures((features) => [
               ...features,
               {
-                id: index + 1,
+                id: member?.user_id,
                 geometry: {
                   type: "Point",
                   coordinates: [
@@ -212,19 +216,23 @@ const Dash: NextPage = () => {
           // console.log(features);
           // daoMembers[index].user_id != userID
           //   console.log(daoMembers);
-
+          const findDaoMemberbyUser_id = (user_id: string) => {
+            return daoMembers.find((member) => member.user_id === user_id);
+          };
           console.log(
             index,
-            daoMembers[index].username,
-            daoMembers[index].user_id,
+            daoMembers[index]?.username,
+            daoMembers[index]?.user_id,
             userID,
-            daoMembers[index].location,
+            daoMembers[index]?.location,
             daoMembers,
             features
           );
-          daoMembers[index] != undefined
+          const UserbyUID = findDaoMemberbyUser_id(id);
+          console.log(UserbyUID, "userbyUID");
+          UserbyUID != undefined
             ? ReactDOM.render(
-                <Marker id={index} pfp={daoMembers[index].pfp} />,
+                <Marker id={id} pfp={UserbyUID?.pfp} />,
                 markerNode
               )
             : console.log("no dao member");
@@ -271,20 +279,13 @@ const Dash: NextPage = () => {
             >
               <Flex flexDir="column" as="nav">
                 <Flex ml={4} mt={4} mb={4} align="center">
-                  <Flex flexDir="column" as="nav">
-                    <Heading
-                      mt={50}
-                      mb={[25, 50, 100]}
-                      fontSize={["2xl", "2xl", "2xl", "2xl", "2xl"]}
-                      alignSelf="center"
-                      letterSpacing="tight"
-                    >
-                      MapMyDao
-                    </Heading>
-                  </Flex>
-                  <Box mt="-5rem">
-                    <Logo />{" "}
-                  </Box>
+                  <Image
+                    mt="2rem"
+                    maxW="100%"
+                    maxH="80px"
+                    src="https://res.cloudinary.com/dev-connect/image/upload/v1640589623/img/Group_2_hf5qpg.svg"
+                    alt="logo"
+                  />
                 </Flex>
                 <Flex
                   flexDir={["row", "row", "column", "column", "column"]}
@@ -401,7 +402,7 @@ const Dash: NextPage = () => {
                     Members
                   </Heading>
                   <Text fontSize="small" color="gray" ml={4}>
-                    Apr 2021
+                    {new Date().toLocaleDateString()}
                   </Text>
                 </Flex>
                 <IconButton aria-label="expand" icon={<FiCalendar />} />
@@ -417,148 +418,45 @@ const Dash: NextPage = () => {
                       </Tr>
                     </Thead>
                     <Tbody>
-                      <Tr>
-                        <Td>
-                          <Flex align="center">
-                            <Avatar size="sm" mr={2} src="amazon.jpeg" />
-                            <Flex flexDir="column">
-                              <Heading size="sm" letterSpacing="tight">
-                                Amazon
-                              </Heading>
-                              <Text fontSize="sm" color="gray">
-                                Apr 24, 2021 at 1:40pm
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Td>
-                        <Td>Electronic Devices</Td>
-                        <Td isNumeric>+$2</Td>
-                        <Td isNumeric>
-                          <Text fontWeight="bold" display="inline-table">
-                            -$242
-                          </Text>
-                          .00
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td>
-                          <Flex align="center">
-                            <Avatar size="sm" mr={2} src="starbucks.png" />
-                            <Flex flexDir="column">
-                              <Heading size="sm" letterSpacing="tight">
-                                Starbucks
-                              </Heading>
-                              <Text fontSize="sm" color="gray">
-                                Apr 22, 2021 at 2:43pm
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Td>
-                        <Td>Cafe and restaurant</Td>
-                        <Td isNumeric>+$23</Td>
-                        <Td isNumeric>
-                          <Text fontWeight="bold" display="inline-table">
-                            -$32
-                          </Text>
-                          .00
-                        </Td>
-                      </Tr>
-                      <Tr>
-                        <Td>
-                          <Flex align="center">
-                            <Avatar size="sm" mr={2} src="youtube.png" />
-                            <Flex flexDir="column">
-                              <Heading size="sm" letterSpacing="tight">
-                                YouTube
-                              </Heading>
-                              <Text fontSize="sm" color="gray">
-                                Apr 13, 2021 at 11:23am
-                              </Text>
-                            </Flex>
-                          </Flex>
-                        </Td>
-                        <Td>Social Media</Td>
-                        <Td isNumeric>+$4</Td>
-                        <Td isNumeric>
-                          <Text fontWeight="bold" display="inline-table">
-                            -$112
-                          </Text>
-                          .00
-                        </Td>
-                      </Tr>
-                      {display == "show" && (
-                        <>
-                          <Tr>
-                            <Td>
-                              <Flex align="center">
-                                <Avatar size="sm" mr={2} src="amazon.jpeg" />
-                                <Flex flexDir="column">
-                                  <Heading size="sm" letterSpacing="tight">
-                                    Amazon
-                                  </Heading>
-                                  <Text fontSize="sm" color="gray">
-                                    Apr 12, 2021 at 9:40pm
-                                  </Text>
+                      {daoMembers.map((member, index) => {
+                        if (display === "show") {
+                          return (
+                            <Tr key={index}>
+                              <Td>
+                                <Flex align="center">
+                                  <Avatar size="sm" mr={2} src={member.pfp} />
+                                  <Flex flexDir="column">
+                                    <Heading size="sm" letterSpacing="tight">
+                                      {member.username}
+                                    </Heading>
+                                  </Flex>
                                 </Flex>
-                              </Flex>
-                            </Td>
-                            <Td>Electronic Devices</Td>
-                            <Td isNumeric>+$2</Td>
-                            <Td isNumeric>
-                              <Text fontWeight="bold" display="inline-table">
-                                -$242
-                              </Text>
-                              .00
-                            </Td>
-                          </Tr>
-                          <Tr>
-                            <Td>
-                              <Flex align="center">
-                                <Avatar size="sm" mr={2} src="starbucks.png" />
-                                <Flex flexDir="column">
-                                  <Heading size="sm" letterSpacing="tight">
-                                    Starbucks
-                                  </Heading>
-                                  <Text fontSize="sm" color="gray">
-                                    Apr 10, 2021 at 2:10pm
-                                  </Text>
-                                </Flex>
-                              </Flex>
-                            </Td>
-                            <Td>Cafe and restaurant</Td>
-                            <Td isNumeric>+$23</Td>
-                            <Td isNumeric>
-                              <Text fontWeight="bold" display="inline-table">
-                                -$32
-                              </Text>
-                              .00
-                            </Td>
-                          </Tr>
-                          <Tr>
-                            <Td>
-                              <Flex align="center">
-                                <Avatar size="sm" mr={2} src="youtube.png" />
-                                <Flex flexDir="column">
-                                  <Heading size="sm" letterSpacing="tight">
-                                    YouTube
-                                  </Heading>
-                                  <Text fontSize="sm" color="gray">
-                                    Apr 7, 2021 at 9:03am
-                                  </Text>
-                                </Flex>
-                              </Flex>
-                            </Td>
-                            <Td>Social Media</Td>
-                            <Td isNumeric>+$4</Td>
-                            <Td isNumeric>
-                              <Text fontWeight="bold" display="inline-table">
-                                -$112
-                              </Text>
-                              .00
-                            </Td>
-                          </Tr>
-                        </>
-                      )}
+                              </Td>
+                              <Td>{member.role}</Td>
+                              <Td isNumeric>Goa</Td>
+                            </Tr>
+                          );
+                        } else {
+                          if (index === 0) {
+                            return (
+                              <Tr key={index}>
+                                <Td>
+                                  <Flex align="center">
+                                    <Avatar size="sm" mr={2} src={member.pfp} />
+                                    <Flex flexDir="column">
+                                      <Heading size="sm" letterSpacing="tight">
+                                        {member.username}
+                                      </Heading>
+                                    </Flex>
+                                  </Flex>
+                                </Td>
+                                <Td>{member.role}</Td>
+                                <Td isNumeric>Goa</Td>
+                              </Tr>
+                            );
+                          }
+                        }
+                      })}
                     </Tbody>
                   </Table>
                 </Flex>

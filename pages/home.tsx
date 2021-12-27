@@ -33,6 +33,7 @@ import {
   PopoverArrow,
   PopoverBody,
   PopoverCloseButton,
+  Image,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -268,7 +269,7 @@ const Home: NextPage = () => {
             >
               <Flex flexDir="column" as="nav">
                 <Flex ml={4} mt={4} mb={4} align="center">
-                  <Flex flexDir="column" as="nav">
+                  {/* <Flex flexDir="column" as="nav">
                     <Heading
                       mt={50}
                       mb={[25, 50, 100]}
@@ -278,10 +279,17 @@ const Home: NextPage = () => {
                     >
                       MapMyDao
                     </Heading>
-                  </Flex>
-                  <Box mt="-5rem">
-                    <Logo />{" "}
-                  </Box>
+                  </Flex> */}
+                  {/* <Box mt="-5rem"> */}
+                  {/* <Logo /> */}
+                  <Image
+                    mt="2rem"
+                    maxW="100%"
+                    maxH="80px"
+                    src="https://res.cloudinary.com/dev-connect/image/upload/v1640589623/img/Group_2_hf5qpg.svg"
+                    alt="logo"
+                  />
+                  {/* </Box> */}
                 </Flex>
                 <Flex
                   flexDir={["row", "row", "column", "column", "column"]}
