@@ -92,12 +92,12 @@ const Home: NextPage = () => {
     //   window.location.reload();
     // }
     const reloadCount = sessionStorage.getItem("reloadCount");
-    // if (reloadCount < 1) {
-    //   sessionStorage.setItem("reloadCount", String(reloadCount + 1));
-    //   window.location.reload();
-    // } else {
-    //   sessionStorage.removeItem("reloadCount");
-    // }
+    if (reloadCount < 1) {
+      sessionStorage.setItem("reloadCount", String(reloadCount + 1));
+      window.location.reload();
+    } else {
+      sessionStorage.removeItem("reloadCount");
+    }
   }, []);
 
   // useEffect(() => {}, [userID]);
@@ -587,6 +587,7 @@ const Home: NextPage = () => {
                 daoList.map((daoitem, index) => (
                   <option key={index} value={daoitem.uid}>
                     {daoitem.name}
+                    {console.log(daoitem)}
                   </option>
                 ))
               ) : (
