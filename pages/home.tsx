@@ -80,27 +80,37 @@ const Home: NextPage = () => {
     const user2 = supabase.auth.user();
     console.log(user2);
     setUser(user2 != null ? user2 : {});
-    setUserID(user2 != null ? user2.user_metadata.provider_id : "");
+    setUserID(user2 != null ? user2?.user_metadata?.provider_id : "");
   }, []);
 
   // useEffect(() => {}, [userID]);
 
   useEffect(() => {
+    const getDaoList = async () => {
+      const { data, error } = await supabase
+        .from("daos")
+        .select()
+        .eq("signer_id", user?.user_metadata?.provider_id);
+      console.log(data, "daolist get");
+      setDaoList(data as any);
+    };
+
     const getSupabaseUser = async () => {
       if (user != undefined) {
         const { data, error } = await supabase
           .from("users")
           .select()
           .eq("user_id", userID);
-
-        data[0] != undefined
-          ? setXY({
-              x: data[0].location.longitude,
-              y: data[0].location.latitude,
-            })
-          : console.log("no data");
-        console.log(data[0].dao, "dao");
-        data[0] != undefined ? setDao(data[0].dao) : console.log("no dao");
+        if (data != null && data != undefined && data.length > 0) {
+          data[0] != undefined
+            ? setXY({
+                x: data[0].location.longitude,
+                y: data[0].location.latitude,
+              })
+            : console.log("no data");
+          console.log(data[0].dao, "dao");
+          // setDao(data[0].dao);
+        }
       }
     };
     async function getDaoMembersFromSupabase() {
@@ -111,10 +121,31 @@ const Home: NextPage = () => {
       console.log(data);
       setDaoMembers(data as any);
     }
-    getSupabaseUser().then(() => {
+    // getSupabaseUser().then(() => {
+    //   getDaoList().then(() => {
+    //     getDaoMembersFromSupabase();
+    //   });
+    // });
+    getSupabaseUser();
+    getDaoList().then(() => {
       getDaoMembersFromSupabase();
     });
+    console.log(daoMembers, "daomems");
   }, [userID, user, dao]);
+
+  // useEffect(() => {
+  //   const getDaoList = async () => {
+  //     if (user) {
+  //       const { data, error } = await supabase
+  //         .from("daos")
+  //         .select()
+  //         .eq("signer_id", user?.user_metadata?.provider_id);
+  //       console.log(data, "daolist get");
+  //       setDaoList(data as any);
+  //     }
+  //     getDaoList();
+  //   };
+  // }, [user]);
   useEffect(() => {
     console.log("dao meme use effect fored");
     daoMembers.length > 0
@@ -237,7 +268,7 @@ const Home: NextPage = () => {
       // clean  up on unmount
       return () => map.remove();
     }
-  }, [xy, daoMembers, features]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [xy, daoMembers, features, dao]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <Head>
@@ -515,11 +546,39 @@ const Home: NextPage = () => {
                 <Input type="number" placeholder="Search" borderRadius="10px" />
               </InputGroup>
             </Flex>
-            <Heading letterSpacing="tight"></Heading>
+            <Heading letterSpacing="tight" as="h3">
+              Select a Dao
+            </Heading>
 
             {/* <Heading letterSpacing="tight" size="md" my={4}>
               Your Profile
             </Heading> */}
+            <Select
+              placeholder="Select a Dao"
+              onChange={(e) => {
+                // console.log(typeof e.target.value);
+                console.log(
+                  daoList.find((dao) => dao.uid === e.target.value)?.uid
+                );
+                setDao(
+                  () => daoList.find((dao) => dao.uid === e.target.value)?.uid
+                );
+                console.log(dao);
+                return daoList.find((dao) => dao.uid === e.target.value)?.uid;
+              }}
+            >
+              {/* {dao.length > 1 ? console.log(dao) : null} */}
+
+              {daoList.length > 0 ? (
+                daoList.map((daoitem, index) => (
+                  <option key={index} value={daoitem.uid}>
+                    {daoitem.name}
+                  </option>
+                ))
+              ) : (
+                <></>
+              )}
+            </Select>
             <UserProfileEdit
               user={user}
               dao={dao}
