@@ -76,18 +76,18 @@ const Header = (props: any) => {
           direction={["column", "row", "row", "row"]}
           pt={[4, 4, 0, 0]}
         >
-          <MenuItem to="/" isLast={false}>
+          {/* <MenuItem to="/" isLast={false}>
             Home
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem to="/how" isLast={false}>
             How It works
           </MenuItem>
-          <MenuItem to="/features" isLast={false}>
+          {/* <MenuItem to="/features" isLast={false}>
             Features
           </MenuItem>
           <MenuItem to="/pricing" isLast={false}>
             Pricing
-          </MenuItem>
+          </MenuItem> */}
           <MenuItem to="/auth/register" isLast>
             <Button
               size="sm"
