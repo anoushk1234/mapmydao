@@ -71,7 +71,7 @@ const Home: NextPage = () => {
   // ]);
 
   const [user, setUser] = useState<any>({
-    usermetadata: { provider_id: "", role: "" },
+    usermetadata: { provider_id: "", role: "", avatar_url: "" },
   });
   const [daoList, setDaoList] = useState([]);
   const [dao, setDao] = useState({});
@@ -92,12 +92,12 @@ const Home: NextPage = () => {
     //   window.location.reload();
     // }
     const reloadCount = sessionStorage.getItem("reloadCount");
-    if (reloadCount < 1) {
-      sessionStorage.setItem("reloadCount", String(reloadCount + 1));
-      window.location.reload();
-    } else {
-      sessionStorage.removeItem("reloadCount");
-    }
+    // if (reloadCount < 1) {
+    //   sessionStorage.setItem("reloadCount", String(reloadCount + 1));
+    //   window.location.reload();
+    // } else {
+    //   sessionStorage.removeItem("reloadCount");
+    // }
   }, []);
 
   // useEffect(() => {}, [userID]);
