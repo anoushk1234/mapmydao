@@ -319,13 +319,15 @@ const Home: NextPage = () => {
                   </Flex> */}
                   {/* <Box mt="-5rem"> */}
                   {/* <Logo /> */}
-                  <Image
-                    mt="2rem"
-                    maxW="100%"
-                    maxH="80px"
-                    src="https://res.cloudinary.com/dev-connect/image/upload/v1640589623/img/Group_2_hf5qpg.svg"
-                    alt="logo"
-                  />
+                  <Link href="/">
+                    <Image
+                      mt="2rem"
+                      maxW="100%"
+                      maxH="80px"
+                      src="https://res.cloudinary.com/dev-connect/image/upload/v1640589623/img/Group_2_hf5qpg.svg"
+                      alt="logo"
+                    />
+                  </Link>
                   {/* </Box> */}
                 </Flex>
                 <Flex
