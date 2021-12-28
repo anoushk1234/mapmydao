@@ -71,7 +71,7 @@ export default function UserProfileEdit({
   //   useEffect(() => {
   async function sendCoordinatesToSupabase() {
     if (userID) {
-      const reg = await reverseGeocode(long, lat);
+      const reg = await reverseGeocode(long, lat, false);
       console.log(reg);
       const { data, error } = await supabase
         .from("users")
@@ -84,7 +84,7 @@ export default function UserProfileEdit({
           },
         })
         .match({ user_id: userID });
-      console.log(data);
+      //console.log(data);
       toast.success("location updated");
     }
   }
@@ -130,7 +130,7 @@ export default function UserProfileEdit({
         role: role,
       })
       .match({ user_id: id });
-    console.log(data);
+    // console.log(data);
     toast.success("profile updated");
   }
   async function sendPfpToSupabase(pfp: any) {
@@ -141,7 +141,7 @@ export default function UserProfileEdit({
         pfp: pfp,
       })
       .match({ user_id: id });
-    console.log(data);
+    //console.log(data);
     toast.success("pfp updated");
   }
 

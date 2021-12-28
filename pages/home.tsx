@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
-import mapboxgl from "mapbox-gl";
+import mapboxgl, { Popup } from "mapbox-gl";
 import { useRouter } from "next/router";
 //@ts-ignore
 import {
@@ -55,20 +55,22 @@ import Marker from "./components/Marker";
 import ReactDOM from "react-dom";
 import Logo from "./components/ui/Logo";
 import { reverseGeocode } from "../utils/reverseGeocode";
+import { PartyPopper } from "./components/PartyPopper";
+import { Meetup } from "./components/Meetup";
+import moment from "moment";
+import { toast } from "react-toastify";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
   const mapContainerRef = useRef(null);
   const [display, changeDisplay] = useState("hide");
   const [value, changeValue] = useState(1);
+  const [meetTitle, setMeetTitle] = useState("");
   const [tab, setTab] = useState("map");
   const [userID, setUserID] = useState("");
-  // const [region, setRegion] = useState([
-  //   {
-  //     userid: "",
-  //     reg: "",
-  //   },
-  // ]);
+  const [supabaseID, setSupabaseID] = useState("");
+  const [meetupregion, setMeetupregion] = useState("");
+  const [date, setDate] = useState(undefined);
 
   const [user, setUser] = useState<any>({
     usermetadata: { provider_id: "", role: "", avatar_url: "" },
@@ -76,8 +78,14 @@ const Home: NextPage = () => {
   const [daoList, setDaoList] = useState([]);
   const [dao, setDao] = useState({});
   const [daoMembers, setDaoMembers] = useState([]);
-  const router = useRouter();
-
+  const [createMeetup, setCreateMeetup] = useState(false);
+  const [markermeetupPopuptext, setMarkermeetupPopuptext] = useState(
+    "Drop this pin where u want to host the meetup"
+  );
+  const [markerLocation, setMarkerLocation] = useState({
+    lat: 0,
+    lng: 0,
+  });
   const [xy, setXY] = useState({
     x: -104.9876,
     y: 39.7405,
@@ -85,13 +93,23 @@ const Home: NextPage = () => {
   const [features, setFeatures] = useState<any[]>([]);
   useEffect(() => {
     const user2 = supabase.auth.user();
-    console.log(user2);
+    // console.log(user2);
     setUser(user2 != null ? user2 : {});
     setUserID(user2 != null ? user2?.user_metadata?.provider_id : "");
+    const getThisUser = async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("user_id", user2?.user_metadata?.provider_id);
+      setSupabaseID(data ? data[0]?.id : "");
+      console.log(data);
+    };
+    getThisUser();
+
     // for (let index = 0; index < 1; index++) {
     //   window.location.reload();
     // }
-    const reloadCount = sessionStorage.getItem("reloadCount");
+    // const reloadCount = sessionStorage.getItem("reloadCount");
     // if (reloadCount < 1) {
     //   sessionStorage.setItem("reloadCount", String(reloadCount + 1));
     //   window.location.reload();
@@ -126,7 +144,7 @@ const Home: NextPage = () => {
         .from("users")
         .select()
         .match({ dao: dao });
-      console.log(data);
+      //  console.log(data);
       setDaoMembers(data as any);
     }
     // getSupabaseUser().then(() => {
@@ -137,8 +155,29 @@ const Home: NextPage = () => {
     getSupabaseUser();
     getDaoMembersFromSupabase();
 
-    console.log(daoMembers, "daomems");
+    //console.log(daoMembers, "daomems");
   }, [userID, dao]);
+
+  const sendMeetupToSupabase = async (long: any, lat: any, reg: any) => {
+    const { data, error } = await supabase.from("meetups").insert([
+      {
+        location: {
+          longitude: long,
+          latitude: lat,
+          region: reg,
+        },
+        date: moment(date).format("YYYY-MM-DD HH:mm:ss"),
+        Host: supabaseID,
+        attendees: [supabaseID],
+        dao: dao,
+        title: meetTitle,
+      },
+    ]);
+    console.log(data, "meetupdata");
+    data.length > 0
+      ? toast.success("Meetup Created")
+      : toast.error("Something went wrong");
+  };
 
   useEffect(() => {
     const getDaoList = async () => {
@@ -146,7 +185,7 @@ const Home: NextPage = () => {
         .from("daos")
         .select()
         .eq("signer_id", user?.user_metadata?.provider_id);
-      console.log(data, "daolist get");
+      // console.log(data, "daolist get");
       setDaoList(data as any);
     };
     getDaoList();
@@ -156,7 +195,7 @@ const Home: NextPage = () => {
     console.log("dao meme use effect fored");
     daoMembers.length > 0
       ? daoMembers.forEach((member, index) => {
-          console.log(member);
+          //console.log(member);
           // index == 0
           //   ? setFeatures([
           //       {
@@ -188,14 +227,14 @@ const Home: NextPage = () => {
           }
         })
       : console.log("no dao members in use effect");
-    console.log(features, "features");
+    //console.log(features, "features");
   }, [daoMembers]); // eslint-disable-line
   useEffect(() => {
-    const { x, y } = xy;
-    console.log(x, y, "xy");
+    let { x, y } = xy;
+    // console.log(x, y, "xy");
     if (x != undefined && y != undefined && tab === "map") {
       const map = new mapboxgl.Map({
-        container: mapContainerRef.current || "map", // container ID
+        container: mapContainerRef.current, // container ID
         style: "mapbox://styles/mapbox/streets-v11", // style URL
         center: [x, y], // starting position
         zoom: 8, // starting zoom
@@ -270,11 +309,40 @@ const Home: NextPage = () => {
             .addTo(map);
         });
       });
+      if (tab === "map" && createMeetup === true) {
+        const Popupnode = document.createElement("div");
+        // const popup = new mapboxgl.Popup(Popupnode).setText(
+        //   markermeetupPopuptext
+        // );
+        ReactDOM.render(
+          <Text color="black">{markermeetupPopuptext}</Text>,
+          Popupnode
+        );
+        const popup = new mapboxgl.Popup(Popupnode).setText(
+          markermeetupPopuptext
+        );
+        const marker = new mapboxgl.Marker({
+          draggable: true,
+        })
+          .setLngLat([Number(x) + 0.5, y])
+          .setPopup(popup)
+          .addTo(map);
 
+        marker.on("dragend", async () => {
+          const lngLat = marker.getLngLat();
+          const reg = await reverseGeocode(lngLat.lng, lngLat.lat, true);
+          setMeetupregion(reg);
+          setMarkerLocation({
+            lat: lngLat.lat,
+            lng: lngLat.lng,
+          });
+          console.log(reg);
+        });
+      }
       // clean  up on unmount
       return () => map.remove();
     }
-  }, [xy, features, mapContainerRef.current]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [xy, features, mapContainerRef.current, createMeetup]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <Head>
@@ -560,7 +628,7 @@ const Home: NextPage = () => {
                 <Input type="number" placeholder="Search" borderRadius="10px" />
               </InputGroup>
             </Flex>
-            <Heading letterSpacing="tight" as="h3">
+            <Heading letterSpacing="tight" p={2} as="h3">
               Select a Dao
             </Heading>
 
@@ -577,7 +645,7 @@ const Home: NextPage = () => {
                 setDao(
                   () => daoList.find((dao) => dao.uid === e.target.value)?.uid
                 );
-                console.log(dao);
+                //  console.log(dao);
                 return daoList.find((dao) => dao.uid === e.target.value)?.uid;
               }}
             >
@@ -601,30 +669,15 @@ const Home: NextPage = () => {
               xy={xy}
               userID={userID}
             />
-
-            {/* <Text color="gray" mt={4} mb={2}>
-              Use the ~config command to register your Dao
-            </Text> */}
-            {/* <Select
-            placeholder="Select a Dao"
-            onChange={(e) => {
-              // console.log(typeof e.target.value);
-              // console.log(e.target.value);
-              setDao(e.target.value);
-            }}
-          >
-             {dao.length > 1 ? console.log(dao) : null}
-
-            {daoList.length > 0 ? (
-              daoList.map((daoitem, index) => (
-                <option key={index} value={daoitem.uid}>
-                  {daoitem.name}
-                </option>
-              ))
-            ) : (
-              <></>
-            )}
-          </Select>  */}
+            <Meetup
+              meetupregion={meetupregion}
+              setDate={setDate}
+              setCreateMeetup={setCreateMeetup}
+              sendMeetupToSupabase={sendMeetupToSupabase}
+              date={date}
+              setMeetTitle={setMeetTitle}
+              markerLocation={markerLocation}
+            />
           </Flex>
         </Flex>
       }

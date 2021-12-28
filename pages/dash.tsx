@@ -76,7 +76,7 @@ const Dash: NextPage = () => {
   const [features, setFeatures] = useState<any[]>([]);
   useEffect(() => {
     const user2 = supabase.auth.user();
-    console.log(user2);
+    user2;
     setUser(user2 != null ? user2 : {});
     setUserID(user2 != null ? user2.user_metadata.provider_id : "");
   }, []);
@@ -87,7 +87,7 @@ const Dash: NextPage = () => {
         .from("daos")
         .select()
         .eq("signer_id", user?.user_metadata?.provider_id);
-      console.log(data, "daolist get");
+      //console.log(data, "daolist get");
       setDaoList(data as any);
     };
 
@@ -97,16 +97,16 @@ const Dash: NextPage = () => {
           .from("users")
           .select()
           .eq("user_id", userID);
-        console.log(data, userID, "supabase user");
+        // console.log(data, userID, "supabase user");
         if (data != null && data != undefined && data.length > 0) {
           data[0] != undefined
             ? setXY({
                 x: data[0].location.longitude,
                 y: data[0].location.latitude,
               })
-            : console.log("no data");
-          console.log(data[0].dao, "dao");
-          setDao(data[0].dao);
+            : //console.log("no data");
+              //console.log(data[0].dao, "dao");
+              setDao(data[0].dao);
         }
       }
     };
@@ -115,7 +115,7 @@ const Dash: NextPage = () => {
         .from("users")
         .select()
         .match({ dao: dao });
-      console.log(data);
+      // console.log(data);
       setDaoMembers(data as any);
     }
     getSupabaseUser().then(() => {
@@ -125,10 +125,10 @@ const Dash: NextPage = () => {
     });
   }, [userID, user, dao]);
   useEffect(() => {
-    console.log("dao meme use effect fored");
+    // console.log("dao meme use effect fored");
     daoMembers.length > 0
       ? daoMembers.forEach((member, index) => {
-          console.log(member);
+          //  console.log(member);
           // index == 0
           //   ? setFeatures([
           //       {
@@ -160,11 +160,11 @@ const Dash: NextPage = () => {
           }
         })
       : console.log("no dao members in use effect");
-    console.log(features, "features");
+    // console.log(features, "features");
   }, [daoMembers]); // eslint-disable-line
   useEffect(() => {
     const { x, y } = xy;
-    console.log(x, y, "xy");
+    //console.log(x, y, "xy");
     if (x != undefined && y != undefined && tab === "map") {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current || "map", // container ID
@@ -219,17 +219,17 @@ const Dash: NextPage = () => {
           const findDaoMemberbyUser_id = (user_id: string) => {
             return daoMembers.find((member) => member.user_id === user_id);
           };
-          console.log(
-            index,
-            daoMembers[index]?.username,
-            daoMembers[index]?.user_id,
-            userID,
-            daoMembers[index]?.location,
-            daoMembers,
-            features
-          );
+          // console.log(
+          //   index,
+          //   daoMembers[index]?.username,
+          //   daoMembers[index]?.user_id,
+          //   userID,
+          //   daoMembers[index]?.location,
+          //   daoMembers,
+          //   features
+          // );
           const UserbyUID = findDaoMemberbyUser_id(id);
-          console.log(UserbyUID, "userbyUID");
+          // console.log(UserbyUID, "userbyUID");
           UserbyUID != undefined
             ? ReactDOM.render(
                 <Marker id={id} pfp={UserbyUID?.pfp} />,
