@@ -22,6 +22,9 @@ import {
   Divider,
   Link,
   Box,
+  Modal,
+  ModalContent,
+  ModalOverlay,
   Button,
   Input,
   InputGroup,
@@ -34,6 +37,10 @@ import {
   PopoverBody,
   PopoverCloseButton,
   Image,
+  ModalBody,
+  ModalCloseButton,
+  ModalHeader,
+  ModalFooter,
 } from "@chakra-ui/react";
 import {
   FiHome,
@@ -58,7 +65,9 @@ import { reverseGeocode } from "../utils/reverseGeocode";
 import PartyPopper from "./components/PartyPopper";
 import Meetup from "./components/Meetup";
 import moment from "moment";
+import { SiGotomeeting } from "react-icons/si";
 import { toast } from "react-toastify";
+import MeetupMarker from "./components/MeetupMarker";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
@@ -71,17 +80,23 @@ const Home: NextPage = () => {
   const [supabaseID, setSupabaseID] = useState("");
   const [meetupregion, setMeetupregion] = useState("");
   const [date, setDate] = useState(undefined);
-
+  const [meetupList, setMeetupList] = useState([]);
+  const [meetup, setMeetup] = useState({
+    title: "",
+    attendees: [],
+  });
   const [user, setUser] = useState<any>({
     usermetadata: { provider_id: "", role: "", avatar_url: "" },
   });
   const [daoList, setDaoList] = useState([]);
+  const [attendee, setAttendee] = useState("");
   const [dao, setDao] = useState({});
   const [daoMembers, setDaoMembers] = useState([]);
   const [createMeetup, setCreateMeetup] = useState(false);
   const [markermeetupPopuptext, setMarkermeetupPopuptext] = useState(
     "Drop this pin where u want to host the meetup"
   );
+  const [openMeetupMarker, setOpenMeetupMarker] = useState(false);
   const [markerLocation, setMarkerLocation] = useState({
     lat: 0,
     lng: 0,
@@ -192,24 +207,21 @@ const Home: NextPage = () => {
   }, [userID]);
 
   useEffect(() => {
+    const getMeetupList = async () => {
+      const { data, error } = await supabase
+        .from("meetups")
+        .select()
+        .eq("dao", dao);
+      console.log(data, "meetup list");
+      setMeetupList(data as any);
+    };
+    getMeetupList();
+  }, [dao]);
+
+  useEffect(() => {
     console.log("dao meme use effect fored");
     daoMembers.length > 0
       ? daoMembers.forEach((member, index) => {
-          //console.log(member);
-          // index == 0
-          //   ? setFeatures([
-          //       {
-          //         id: index + 1,
-          //         geometry: {
-          //           type: "Point",
-          //           coordinates: [
-          //             member.location.longitude,
-          //             member.location.latitude,
-          //           ],
-          //         },
-          //       },
-          //     ])
-          //   :
           if (member.location != null) {
             setFeatures((features) => [
               ...features,
@@ -229,6 +241,36 @@ const Home: NextPage = () => {
       : console.log("no dao members in use effect");
     //console.log(features, "features");
   }, [daoMembers]); // eslint-disable-line
+
+  const getThisUser = async (attendee: any) => {
+    const { data } = await supabase.from("users").select().eq("id", attendee);
+    return data != null ? data[0] : {};
+  };
+  const rsvp = async (meetup_id: any) => {
+    const { data, error } = await supabase
+      .from("meetups")
+      .select("attendees")
+      .eq("meet_id", Number(meetup_id));
+    console.log(Number(meetup_id));
+
+    if (
+      data != null &&
+      data != undefined &&
+      !data[0].attendees.includes(supabaseID)
+    ) {
+      const { data: data2, error: error2 } = await supabase
+        .from("meetups")
+        .update({
+          attendees: [...data[0].attendees, supabaseID.toString()],
+        })
+        .eq("meet_id", meetup_id);
+      console.log(data2, "data2");
+      toast.success("RSVP Successful");
+    } else {
+      toast.error("You are already RSVP'd");
+    }
+  };
+
   useEffect(() => {
     let { x, y } = xy;
     // console.log(x, y, "xy");
@@ -253,36 +295,13 @@ const Home: NextPage = () => {
       // add navigation control (the +/- zoom buttons)
       map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
       map.on("moveend", async () => {
-        // get center coordinates
-
-        // const results = {
-        //   features: [
-        //     {
-        //       id: 1,
-        //       geometry: {
-        //         type: "Point",
-        //         coordinates: [x, y],
-        //       },
-        //     },
-        //   ],
-        // };
         // iterate through the feature collection and append marker to the map for each feature
         features.forEach((result, index) => {
           const { id, geometry } = result;
 
           // create marker node
           const markerNode = document.createElement("div");
-          // if (index === 0) {
-          //   features.forEach((result, index) => {
-          //     features.length - 1 != index
-          //       ? (features[index] = features[index + 1])
-          //       : null;
-          //     console.log(features);
-          //   });
-          // }
-          // console.log(features);
-          // daoMembers[index].user_id != userID
-          //   console.log(daoMembers);
+
           const findDaoMemberbyUser_id = (user_id: string) => {
             return daoMembers.find((member) => member.user_id === user_id);
           };
@@ -295,6 +314,7 @@ const Home: NextPage = () => {
           //   daoMembers,
           //   features
           // );
+
           const UserbyUID = findDaoMemberbyUser_id(id);
           console.log(UserbyUID, "userbyUID");
           UserbyUID != undefined
@@ -339,10 +359,32 @@ const Home: NextPage = () => {
           console.log(reg);
         });
       }
+
+      if (meetupList.length > 0 && meetupList) {
+        meetupList.forEach((meetup, index) => {
+          const { location, date, title } = meetup;
+          const { longitude, latitude, reg } = location;
+          const meetupmarkerNode = document.createElement("div");
+          ReactDOM.render(
+            <MeetupMarker
+              openMeetupMarker={openMeetupMarker}
+              setOpenMeetupMarker={setOpenMeetupMarker}
+              setMeetup={setMeetup}
+              meetup={meetup ?? {}}
+            />,
+            meetupmarkerNode
+          );
+
+          new mapboxgl.Marker(meetupmarkerNode)
+            .setLngLat([longitude, latitude])
+            .addTo(map);
+        });
+      }
+
       // clean  up on unmount
       return () => map.remove();
     }
-  }, [xy, features, mapContainerRef.current, createMeetup]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [xy, features, mapContainerRef.current, createMeetup, meetupList]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <Head>
@@ -597,11 +639,63 @@ const Home: NextPage = () => {
               </Flex>
             </Flex>
           ) : (
-            <Box
-              className="map-container"
-              boxSize="3xl"
-              ref={mapContainerRef}
-            ></Box>
+            <>
+              <Box
+                className="map-container"
+                boxSize="3xl"
+                ref={mapContainerRef}
+              ></Box>
+              <Modal
+                isOpen={openMeetupMarker}
+                onClose={() => setOpenMeetupMarker(false)}
+              >
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader>{meetup.title}</ModalHeader>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <Heading size="md" as="h3" mb={4}>
+                      Attendees
+                    </Heading>
+                    {meetup?.attendees.map((attendee: any, index: number) => {
+                      const user = daoMembers.find(
+                        (member: any) => (member.id = attendee)
+                      );
+                      console.log(user);
+                      return (
+                        <Flex key={index}>
+                          <Avatar size="sm" mr={2} src={user?.pfp} />
+                          <Text>{user?.username}</Text>
+                        </Flex>
+                      );
+                    })}
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <Button
+                      colorScheme="blue"
+                      onClick={() => {
+                        rsvp(meetup.meet_id);
+                      }}
+                    >
+                      RSVP
+                    </Button>
+                    <Button
+                    onClick={
+                      () => {
+                        //redirect to google calendar with info about the meetup
+                        window.open(
+                          `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${meetup.title}&dates=${meetup.start_time}/${meetup.end_time}&location=${meetup.location.region}&details=${meetup.description}`
+                        , "_blank");
+                    }}
+                    
+                    variant="ghost" ml={3}>
+                      Add to Calendar
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+            </>
           )}
           {/* Column 3 */}
           <Flex
