@@ -3,7 +3,8 @@ import { PartyPopper } from "./PartyPopper";
 import Datetime from "react-datetime";
 import Head from "next/head";
 import { toast } from "react-toast";
-export const Meetup = ({
+
+const Meetup = ({
   meetupregion,
   setDate,
   setCreateMeetup,
@@ -86,3 +87,5 @@ export const Meetup = ({
     </>
   );
 };
+
+export default Meetup;

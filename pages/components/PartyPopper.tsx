@@ -1,5 +1,7 @@
 import { Text } from "@chakra-ui/react";
 
-export const PartyPopper = () => {
+const PartyPopper = () => {
   return <Text fontSize="1.8rem">🤝</Text>;
 };
+
+export default PartyPopper;
