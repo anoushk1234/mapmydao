@@ -21,7 +21,7 @@ const Meetup = ({
           href="https://cdnjs.cloudflare.com/ajax/libs/react-datepicker/2.14.1/react-datepicker.min.css"
         />
       </Head> */}
-      {meetupregion.length > 0 ? (
+      {meetupregion && meetupregion.length > 0 ? (
         <Flex flexDir="column">
           <Text fontSize="medium" color="gray" mt={4} mx={2} mb={2}>
             Meetup Location
@@ -68,7 +68,7 @@ const Meetup = ({
       ) : (
         <></>
       )}
-      {meetupregion.length > 0 ? (
+      {meetupregion && meetupregion.length > 0 ? (
         <></>
       ) : (
         <Button
