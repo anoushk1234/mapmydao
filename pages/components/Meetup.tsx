@@ -1,5 +1,5 @@
 import { Button, Text, Flex, Heading, Input } from "@chakra-ui/react";
-import { PartyPopper } from "./PartyPopper";
+import PartyPopper from "./PartyPopper";
 import Datetime from "react-datetime";
 import Head from "next/head";
 import { toast } from "react-toast";
