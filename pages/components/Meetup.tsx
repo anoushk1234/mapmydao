@@ -58,7 +58,8 @@ const Meetup = ({
             onClick={() => {
               // setCreateMeetup(true);
               const { lat, lng } = markerLocation;
-              sendMeetupToSupabase(lng, lat);
+
+              sendMeetupToSupabase(lng, lat, meetupregion);
               toast.success("Meetup Created");
             }}
           >
