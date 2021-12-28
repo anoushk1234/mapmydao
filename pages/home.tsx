@@ -184,12 +184,12 @@ const Home: NextPage = () => {
       const { data, error } = await supabase
         .from("daos")
         .select()
-        .eq("signer_id", user?.user_metadata?.provider_id);
+        .eq("signer_id", userID);
       // console.log(data, "daolist get");
       setDaoList(data as any);
     };
     getDaoList();
-  }, [user]);
+  }, [userID]);
 
   useEffect(() => {
     console.log("dao meme use effect fored");
@@ -651,10 +651,10 @@ const Home: NextPage = () => {
             >
               {/* {dao.length > 1 ? console.log(dao) : null} */}
 
-              {daoList.length > 0 ? (
-                daoList.map((daoitem, index) => (
-                  <option key={index} value={daoitem.uid}>
-                    {daoitem.name}
+              {daoList && daoList.length > 0 ? (
+                daoList.map((daoitem: any, index) => (
+                  <option key={index} value={daoitem?.uid}>
+                    {daoitem?.name}
                     {console.log(daoitem)}
                   </option>
                 ))
