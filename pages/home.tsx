@@ -68,6 +68,7 @@ import moment from "moment";
 import { SiGotomeeting } from "react-icons/si";
 import { toast } from "react-toastify";
 import MeetupMarker from "./components/MeetupMarker";
+import MeetupList from "./components/MeetupList";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
@@ -589,105 +590,11 @@ const Home: NextPage = () => {
                 {/* <IconButton aria-label="expand" icon={<FiCalendar />} /> */}
               </Flex>
               {listTab === "meetups" ? (
-                <Flex flexDir="column">
-                  <Flex overflow="auto">
-                    <Table variant="unstyled" mt={4}>
-                      <Thead>
-                        <Tr color="gray">
-                          <Th>Meetup</Th>
-                          <Th isNumeric>Date</Th>
-                          <Th isNumeric>Location</Th>
-                          <Th isNumeric>Attendees</Th>
-                        </Tr>
-                      </Thead>
-                      <Tbody>
-                        {meetupList?.map((meetupItem: any, index) => {
-                          if (display === "show" && meetupItem?.location) {
-                            return (
-                              <Tr key={index}>
-                                <Td>
-                                  <Flex align="center">
-                                    <Avatar
-                                      size="sm"
-                                      mr={2}
-                                      src={meetupItem.meetup_logo}
-                                    />
-                                    <Flex flexDir="column">
-                                      <Heading
-                                        size="sm"
-                                        letterSpacing="tighters"
-                                      >
-                                        {meetupItem.title}
-                                      </Heading>
-                                    </Flex>
-                                  </Flex>
-                                </Td>
-                                <Td>
-                                  {meetupItem.date
-                                    .substring(0,10)
-                                    .split("T")[0]
-                                    .split("-")
-                                    .reverse()
-                                    .join("/")}
-                                </Td>
-                                <Td letterSpacing="tight">
-                                  {meetupItem.location.region ??
-                                    "Location not updated"}
-                                </Td>
-                              </Tr>
-                            );
-                          } else {
-                            if (index === 0 && meetupItem?.location) {
-                              return (
-                                <Tr key={index}>
-                                  <Td>
-                                    <Flex align="center">
-                                      <Avatar
-                                        size="sm"
-                                        mr={2}
-                                        src={meetupItem.pfp}
-                                      />
-                                      <Flex flexDir="column">
-                                        <Heading
-                                          size="sm"
-                                          letterSpacing="tight"
-                                        >
-                                          {meetupItem.username}
-                                        </Heading>
-                                      </Flex>
-                                    </Flex>
-                                  </Td>
-                                  <Td>{meetupItem.role}</Td>
-                                  <Td>
-                                    {meetupItem.location.region ??
-                                      "Location not found"}
-                                  </Td>
-                                </Tr>
-                              );
-                            }
-                          }
-                        })}
-                      </Tbody>
-                    </Table>
-                  </Flex>
-                  <Flex align="center">
-                    <Divider />
-                    <IconButton
-                      aria-label="expand"
-                      icon={
-                        display == "show" ? <FiChevronUp /> : <FiChevronDown />
-                      }
-                      onClick={() => {
-                        if (display == "show") {
-                          changeDisplay("none");
-                        } else {
-                          changeDisplay("show");
-                        }
-                      }}
-                    />
-                    <Divider />
-                  </Flex>
-                </Flex>
+                <MeetupList
+                  meetupList={meetupList}
+                  changeDisplay={changeDisplay}
+                  display={display}
+                />
               ) : (
                 <Flex flexDir="column">
                   <Flex overflow="auto">
