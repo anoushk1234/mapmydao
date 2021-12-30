@@ -74,6 +74,7 @@ const Home: NextPage = () => {
   const mapContainerRef = useRef(null);
   const [display, changeDisplay] = useState("hide");
   const [value, changeValue] = useState(1);
+  const [listTab, changeListTab] = useState("members");
   const [meetTitle, setMeetTitle] = useState("");
   const [tab, setTab] = useState("map");
   const [userID, setUserID] = useState("");
@@ -82,6 +83,7 @@ const Home: NextPage = () => {
   const [date, setDate] = useState(undefined);
   const [meetupList, setMeetupList] = useState([]);
   const [meetup, setMeetup] = useState({
+    meet_id: "",
     title: "",
     attendees: [],
   });
@@ -290,7 +292,7 @@ const Home: NextPage = () => {
         center: [x, y], // starting position
         zoom: 8, // starting zoom
       });
-      map.addControl(
+      map?.addControl(
         new mapboxgl.GeolocateControl({
           positionOptions: {
             enableHighAccuracy: true,
@@ -302,8 +304,8 @@ const Home: NextPage = () => {
         })
       );
       // add navigation control (the +/- zoom buttons)
-      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      map.on("moveend", async () => {
+      map?.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+      map?.on("moveend", async () => {
         // iterate through the feature collection and append marker to the map for each feature
         features.forEach((result, index) => {
           const { id, geometry } = result;
@@ -391,7 +393,7 @@ const Home: NextPage = () => {
       }
 
       // clean  up on unmount
-      return () => map.remove();
+      return () => map?.remove();
     }
   }, [xy, features, mapContainerRef.current, createMeetup, meetupList]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
@@ -559,93 +561,222 @@ const Home: NextPage = () => {
 
               {/* <MyChart /> */}
               <Flex justifyContent="space-between" mt={8}>
-                <Flex align="flex-end">
+                <Flex align="center">
+                  {/* <Button variant="ghost"> */}
                   <Heading as="h2" size="lg" letterSpacing="tight">
-                    Members
+                    {listTab === "members" ? "Members" : "Meetups"}
                   </Heading>
-                  <Text fontSize="small" color="gray" ml={4}>
-                    {new Date().toLocaleDateString()}
-                  </Text>
+                  {/* </Button> */}
+                  <Button
+                    outline="none"
+                    _active={{
+                      outline: "none",
+                    }}
+                    onClick={() =>
+                      changeListTab(
+                        listTab === "members" ? "meetups" : "members"
+                      )
+                    }
+                    variant="ghost"
+                    mx={2}
+                    alignSelf="flex-end"
+                  >
+                    <Text fontSize="medium" as="h4" color="gray" mx={2}>
+                      {listTab === "members" ? "Meetups" : "Members"}
+                    </Text>
+                  </Button>
                 </Flex>
-                <IconButton aria-label="expand" icon={<FiCalendar />} />
+                {/* <IconButton aria-label="expand" icon={<FiCalendar />} /> */}
               </Flex>
-              <Flex flexDir="column">
-                <Flex overflow="auto">
-                  <Table variant="unstyled" mt={4}>
-                    <Thead>
-                      <Tr color="gray">
-                        <Th>Name of Member</Th>
-                        <Th>Role</Th>
-                        <Th isNumeric>Location</Th>
-                      </Tr>
-                    </Thead>
-                    <Tbody>
-                      {daoMembers.map((member: any, index) => {
-                        if (display === "show" && member?.location) {
-                          return (
-                            <Tr key={index}>
-                              <Td>
-                                <Flex align="center">
-                                  <Avatar size="sm" mr={2} src={member.pfp} />
-                                  <Flex flexDir="column">
-                                    <Heading size="sm" letterSpacing="tighters">
-                                      {member.username}
-                                    </Heading>
+              {listTab === "meetups" ? (
+                <Flex flexDir="column">
+                  <Flex overflow="auto">
+                    <Table variant="unstyled" mt={4}>
+                      <Thead>
+                        <Tr color="gray">
+                          <Th>Meetup</Th>
+                          <Th isNumeric>Date</Th>
+                          <Th isNumeric>Location</Th>
+                          <Th isNumeric>Attendees</Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {meetupList?.map((meetupItem: any, index) => {
+                          if (display === "show" && meetupItem?.location) {
+                            return (
+                              <Tr key={index}>
+                                <Td>
+                                  <Flex align="center">
+                                    <Avatar
+                                      size="sm"
+                                      mr={2}
+                                      src={meetupItem.meetup_logo}
+                                    />
+                                    <Flex flexDir="column">
+                                      <Heading
+                                        size="sm"
+                                        letterSpacing="tighters"
+                                      >
+                                        {meetupItem.title}
+                                      </Heading>
+                                    </Flex>
                                   </Flex>
-                                </Flex>
-                              </Td>
-                              <Td>{member.role}</Td>
-                              <Td letterSpacing="tight">
-                                {member.location.region ??
-                                  "Location not updated"}
-                              </Td>
-                            </Tr>
-                          );
+                                </Td>
+                                <Td>
+                                  {meetupItem.date
+                                    .substring(0,10)
+                                    .split("T")[0]
+                                    .split("-")
+                                    .reverse()
+                                    .join("/")}
+                                </Td>
+                                <Td letterSpacing="tight">
+                                  {meetupItem.location.region ??
+                                    "Location not updated"}
+                                </Td>
+                              </Tr>
+                            );
+                          } else {
+                            if (index === 0 && meetupItem?.location) {
+                              return (
+                                <Tr key={index}>
+                                  <Td>
+                                    <Flex align="center">
+                                      <Avatar
+                                        size="sm"
+                                        mr={2}
+                                        src={meetupItem.pfp}
+                                      />
+                                      <Flex flexDir="column">
+                                        <Heading
+                                          size="sm"
+                                          letterSpacing="tight"
+                                        >
+                                          {meetupItem.username}
+                                        </Heading>
+                                      </Flex>
+                                    </Flex>
+                                  </Td>
+                                  <Td>{meetupItem.role}</Td>
+                                  <Td>
+                                    {meetupItem.location.region ??
+                                      "Location not found"}
+                                  </Td>
+                                </Tr>
+                              );
+                            }
+                          }
+                        })}
+                      </Tbody>
+                    </Table>
+                  </Flex>
+                  <Flex align="center">
+                    <Divider />
+                    <IconButton
+                      aria-label="expand"
+                      icon={
+                        display == "show" ? <FiChevronUp /> : <FiChevronDown />
+                      }
+                      onClick={() => {
+                        if (display == "show") {
+                          changeDisplay("none");
                         } else {
-                          if (index === 0 && member?.location) {
+                          changeDisplay("show");
+                        }
+                      }}
+                    />
+                    <Divider />
+                  </Flex>
+                </Flex>
+              ) : (
+                <Flex flexDir="column">
+                  <Flex overflow="auto">
+                    <Table variant="unstyled" mt={4}>
+                      <Thead>
+                        <Tr color="gray">
+                          <Th>Name of Member</Th>
+                          <Th>Tole</Th>
+                          <Th isNumeric>Location</Th>
+                        </Tr>
+                      </Thead>
+                      <Tbody>
+                        {daoMembers.map((member: any, index) => {
+                          if (display === "show" && member?.location) {
                             return (
                               <Tr key={index}>
                                 <Td>
                                   <Flex align="center">
                                     <Avatar size="sm" mr={2} src={member.pfp} />
                                     <Flex flexDir="column">
-                                      <Heading size="sm" letterSpacing="tight">
+                                      <Heading
+                                        size="sm"
+                                        letterSpacing="tighters"
+                                      >
                                         {member.username}
                                       </Heading>
                                     </Flex>
                                   </Flex>
                                 </Td>
                                 <Td>{member.role}</Td>
-                                <Td>
+                                <Td letterSpacing="tight">
                                   {member.location.region ??
-                                    "Location not found"}
+                                    "Location not updated"}
                                 </Td>
                               </Tr>
                             );
+                          } else {
+                            if (index === 0 && member?.location) {
+                              return (
+                                <Tr key={index}>
+                                  <Td>
+                                    <Flex align="center">
+                                      <Avatar
+                                        size="sm"
+                                        mr={2}
+                                        src={member.pfp}
+                                      />
+                                      <Flex flexDir="column">
+                                        <Heading
+                                          size="sm"
+                                          letterSpacing="tight"
+                                        >
+                                          {member.username}
+                                        </Heading>
+                                      </Flex>
+                                    </Flex>
+                                  </Td>
+                                  <Td>{member.role}</Td>
+                                  <Td>
+                                    {member.location.region ??
+                                      "Location not found"}
+                                  </Td>
+                                </Tr>
+                              );
+                            }
                           }
-                        }
-                      })}
-                    </Tbody>
-                  </Table>
-                </Flex>
-                <Flex align="center">
-                  <Divider />
-                  <IconButton
-                    aria-label="expand"
-                    icon={
-                      display == "show" ? <FiChevronUp /> : <FiChevronDown />
-                    }
-                    onClick={() => {
-                      if (display == "show") {
-                        changeDisplay("none");
-                      } else {
-                        changeDisplay("show");
+                        })}
+                      </Tbody>
+                    </Table>
+                  </Flex>
+                  <Flex align="center">
+                    <Divider />
+                    <IconButton
+                      aria-label="expand"
+                      icon={
+                        display == "show" ? <FiChevronUp /> : <FiChevronDown />
                       }
-                    }}
-                  />
-                  <Divider />
+                      onClick={() => {
+                        if (display == "show") {
+                          changeDisplay("none");
+                        } else {
+                          changeDisplay("show");
+                        }
+                      }}
+                    />
+                    <Divider />
+                  </Flex>
                 </Flex>
-              </Flex>
+              )}
             </Flex>
           ) : (
             <>
