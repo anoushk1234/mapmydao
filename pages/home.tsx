@@ -86,11 +86,16 @@ const Home: NextPage = () => {
     attendees: [],
   });
   const [user, setUser] = useState<any>({
-    usermetadata: { provider_id: "", role: "", avatar_url: "" },
+    usermetadata: {
+      provider_id: undefined,
+      role: undefined,
+      avatar_url: undefined,
+    },
   });
   const [daoList, setDaoList] = useState([]);
   const [attendee, setAttendee] = useState("");
   const [dao, setDao] = useState({});
+  const [session, setSession] = useState(undefined);
   const [daoMembers, setDaoMembers] = useState([]);
   const [createMeetup, setCreateMeetup] = useState(false);
   const [markermeetupPopuptext, setMarkermeetupPopuptext] = useState(
@@ -107,19 +112,25 @@ const Home: NextPage = () => {
   });
   const [features, setFeatures] = useState<any[]>([]);
   useEffect(() => {
-    const user2 = supabase.auth.user();
-    // console.log(user2);
-    setUser(user2 != null ? user2 : {});
-    setUserID(user2 != null ? user2?.user_metadata?.provider_id : "");
-    const getThisUser = async () => {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id")
-        .eq("user_id", user2?.user_metadata?.provider_id);
-      setSupabaseID(data ? data[0]?.id : "");
-      console.log(data);
-    };
-    getThisUser();
+    setSession(supabase.auth.session() as any);
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session as any);
+      console.log(session);
+      setUser(session?.user != null ? session?.user : {});
+      setUserID(
+        session?.user != null ? session?.user?.user_metadata?.provider_id : ""
+      );
+      const getThisUser = async () => {
+        const { data, error } = await supabase
+          .from("users")
+          .select("id")
+          .eq("user_id", session?.user?.user_metadata?.provider_id);
+        setSupabaseID(data ? data[0]?.id : "");
+        console.log(data);
+      };
+      getThisUser();
+    });
 
     // for (let index = 0; index < 1; index++) {
     //   window.location.reload();
@@ -132,8 +143,6 @@ const Home: NextPage = () => {
     //   sessionStorage.removeItem("reloadCount");
     // }
   }, []);
-
-  // useEffect(() => {}, [userID]);
 
   useEffect(() => {
     const getSupabaseUser = async () => {
@@ -681,15 +690,16 @@ const Home: NextPage = () => {
                       RSVP
                     </Button>
                     <Button
-                    onClick={
-                      () => {
+                      onClick={() => {
                         //redirect to google calendar with info about the meetup
                         window.open(
-                          `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${meetup.title}&dates=${meetup.start_time}/${meetup.end_time}&location=${meetup.location.region}&details=${meetup.description}`
-                        , "_blank");
-                    }}
-                    
-                    variant="ghost" ml={3}>
+                          `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${meetup.title}&dates=${meetup.start_time}/${meetup.end_time}&location=${meetup.location.region}&details=${meetup.description}`,
+                          "_blank"
+                        );
+                      }}
+                      variant="ghost"
+                      ml={3}
+                    >
                       Add to Calendar
                     </Button>
                   </ModalFooter>
