@@ -63,15 +63,27 @@ const MeetupList = ({ meetupList, changeDisplay, display }: any) => {
                     <Tr key={index}>
                       <Td>
                         <Flex align="center">
-                          <Avatar size="sm" mr={2} src={meetupItem.pfp} />
+                          <Avatar
+                            size="sm"
+                            mr={2}
+                            src={meetupItem.meetup_logo}
+                          />
                           <Flex flexDir="column">
                             <Heading size="sm" letterSpacing="tight">
-                              {meetupItem.username}
+                              {meetupItem.title}
                             </Heading>
                           </Flex>
                         </Flex>
                       </Td>
-                      <Td>{meetupItem.role}</Td>
+                      <Td>
+                        {" "}
+                        {meetupItem.date
+                          .substring(0, 10)
+                          .split("T")[0]
+                          .split("-")
+                          .reverse()
+                          .join("/")}
+                      </Td>
                       <Td>
                         {meetupItem.location.region ?? "Location not found"}
                       </Td>

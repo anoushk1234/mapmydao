@@ -100,6 +100,7 @@ const Home: NextPage = () => {
   const [dao, setDao] = useState({});
   const [session, setSession] = useState(undefined);
   const [daoMembers, setDaoMembers] = useState([]);
+  const [calldata, setCalldata] = useState(false);
   const [createMeetup, setCreateMeetup] = useState(false);
   const [markermeetupPopuptext, setMarkermeetupPopuptext] = useState(
     "Drop this pin where u want to host the meetup"
@@ -185,7 +186,12 @@ const Home: NextPage = () => {
     //console.log(daoMembers, "daomems");
   }, [userID, dao]);
 
-  const sendMeetupToSupabase = async (long: any, lat: any, reg: any) => {
+  const sendMeetupToSupabase = async (
+    long: any,
+    lat: any,
+    reg: any,
+    url: any
+  ) => {
     const { data, error } = await supabase.from("meetups").insert([
       {
         location: {
@@ -198,12 +204,14 @@ const Home: NextPage = () => {
         attendees: [supabaseID],
         dao: dao,
         title: meetTitle,
+        meetup_logo: url,
       },
     ]);
     console.log(data, "meetupdata");
     data.length > 0
       ? toast.success("Meetup Created")
       : toast.error("Something went wrong");
+    setCalldata(true);
   };
 
   useEffect(() => {
@@ -228,7 +236,7 @@ const Home: NextPage = () => {
       setMeetupList(data as any);
     };
     getMeetupList();
-  }, [dao]);
+  }, [dao, calldata]);
 
   useEffect(() => {
     console.log("dao meme use effect fored");
@@ -374,7 +382,7 @@ const Home: NextPage = () => {
 
       if (meetupList.length > 0 && meetupList) {
         meetupList.forEach((meetup, index) => {
-          const { location, date, title } = meetup;
+          const { location, date, title,meetup_logo } = meetup;
           const { longitude, latitude, reg } = location;
           const meetupmarkerNode = document.createElement("div");
           ReactDOM.render(
@@ -382,6 +390,7 @@ const Home: NextPage = () => {
               openMeetupMarker={openMeetupMarker}
               setOpenMeetupMarker={setOpenMeetupMarker}
               setMeetup={setMeetup}
+              meetup_logo={meetup_logo}
               meetup={meetup ?? {}}
             />,
             meetupmarkerNode
@@ -396,7 +405,15 @@ const Home: NextPage = () => {
       // clean  up on unmount
       return () => map?.remove();
     }
-  }, [xy, features, mapContainerRef.current, createMeetup, meetupList]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    xy,
+    features,
+    mapContainerRef.current,
+    createMeetup,
+    meetupList,
+    tab,
+    calldata,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
       <Head>
