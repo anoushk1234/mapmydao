@@ -8,10 +8,7 @@ import {
   Flex,
   Heading,
   Avatar,
-  AvatarGroup,
   Text,
-  Icon,
-  IconButton,
   Table,
   Thead,
   Tbody,
@@ -42,33 +39,23 @@ import {
   ModalHeader,
   ModalFooter,
 } from "@chakra-ui/react";
-import {
-  FiHome,
-  FiPieChart,
-  FiMap,
-  FiCalendar,
-  FiChevronDown,
-  FiChevronUp,
-  FiPlus,
-  FiCreditCard,
-  FiSearch,
-  FiBell,
-} from "react-icons/fi";
-import axios from "axios";
+import { FiHome, FiMap, FiSearch } from "react-icons/fi";
+
 import { supabase } from "../utils/supabaseClient";
 import UserProfileEdit from "./components/ProfileEdit";
 declare const window: any;
 import Marker from "./components/Marker";
 import ReactDOM from "react-dom";
-import Logo from "./components/ui/Logo";
+
 import { reverseGeocode } from "../utils/reverseGeocode";
-import PartyPopper from "./components/PartyPopper";
+
 import Meetup from "./components/Meetup";
 import moment from "moment";
-import { SiGotomeeting } from "react-icons/si";
+
 import { toast } from "react-toastify";
 import MeetupMarker from "./components/MeetupMarker";
 import MeetupList from "./components/MeetupList";
+import Switcher from "./components/Switcher";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
@@ -135,17 +122,6 @@ const Home: NextPage = () => {
       };
       getThisUser();
     });
-
-    // for (let index = 0; index < 1; index++) {
-    //   window.location.reload();
-    // }
-    // const reloadCount = sessionStorage.getItem("reloadCount");
-    // if (reloadCount < 1) {
-    //   sessionStorage.setItem("reloadCount", String(reloadCount + 1));
-    //   window.location.reload();
-    // } else {
-    //   sessionStorage.removeItem("reloadCount");
-    // }
   }, []);
 
   useEffect(() => {
@@ -163,7 +139,6 @@ const Home: NextPage = () => {
               })
             : console.log("no data");
           console.log(data[0].dao, "dao");
-          // setDao(data[0].dao);
         }
       }
     };
@@ -175,11 +150,6 @@ const Home: NextPage = () => {
       //  console.log(data);
       setDaoMembers(data as any);
     }
-    // getSupabaseUser().then(() => {
-    //   getDaoList().then(() => {
-    //     getDaoMembersFromSupabase();
-    //   });
-    // });
     getSupabaseUser();
     getDaoMembersFromSupabase();
 
@@ -445,19 +415,6 @@ const Home: NextPage = () => {
             >
               <Flex flexDir="column" as="nav">
                 <Flex ml={4} mt={4} mb={4} align="center">
-                  {/* <Flex flexDir="column" as="nav">
-                    <Heading
-                      mt={50}
-                      mb={[25, 50, 100]}
-                      fontSize={["2xl", "2xl", "2xl", "2xl", "2xl"]}
-                      alignSelf="center"
-                      letterSpacing="tight"
-                    >
-                      MapMyDao
-                    </Heading>
-                  </Flex> */}
-                  {/* <Box mt="-5rem"> */}
-                  {/* <Logo /> */}
                   <Link href="/">
                     <Image
                       mt="2rem"
@@ -500,9 +457,6 @@ const Home: NextPage = () => {
                     </Button>
                   </Flex>
                   <Flex className="sidebar-items" mr={[2, 6, 0, 0, 0]}>
-                    {/* <Link display={["none", "none", "flex", "flex", "flex"]}>
-                      <Icon as={FiHome} fontSize="2xl" />
-                    </Link> */}
                     <Button
                       onClick={
                         tab === "home"
@@ -685,23 +639,8 @@ const Home: NextPage = () => {
                       </Tbody>
                     </Table>
                   </Flex>
-                  <Flex align="center">
-                    <Divider />
-                    <IconButton
-                      aria-label="expand"
-                      icon={
-                        display == "show" ? <FiChevronUp /> : <FiChevronDown />
-                      }
-                      onClick={() => {
-                        if (display == "show") {
-                          changeDisplay("none");
-                        } else {
-                          changeDisplay("show");
-                        }
-                      }}
-                    />
-                    <Divider />
-                  </Flex>
+
+                  <Switcher changeDisplay={changeDisplay} display={display} />
                 </Flex>
               )}
             </Flex>

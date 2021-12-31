@@ -1,16 +1,4 @@
-import {
-  Circle,
-  Modal,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-  ModalContent,
-  SkeletonCircle,
-  ModalOverlay,
-  ModalCloseButton,
-  Button,
-  Avatar,
-} from "@chakra-ui/react";
+import { Circle, Avatar } from "@chakra-ui/react";
 import styled, { keyframes } from "styled-components";
 import { SiGotomeeting } from "react-icons/si";
 import { pulse } from "react-animations";
@@ -40,9 +28,7 @@ export default function MeetupMarker({
           top="50%"
         >
           {meetup_logo && meetup_logo.length > 0 ? (
-            <SkeletonCircle size="sm" isLoaded={meetup_logo.length > 0}>
-              <Avatar size="45px" borderRadius={50} src={meetup_logo} />
-            </SkeletonCircle>
+            <Avatar size="45px" borderRadius={50} src={meetup_logo} />
           ) : (
             <SiGotomeeting
               style={{
