@@ -35,6 +35,7 @@ export default function UserProfileEdit({
   const [address, setAddress] = useState<string>("");
   const [acc, setAcc] = useState<string>("");
   const [role, setRole] = useState<string>("");
+
   var options = {
     enableHighAccuracy: true,
     timeout: 5000,
@@ -177,7 +178,6 @@ export default function UserProfileEdit({
       spacing={4}
       w={"full"}
       maxW={"md"}
-      bg={useColorModeValue("white", "gray.900")}
       border="4px solid"
       borderColor={useColorModeValue("gray.200", "gray.200")}
       rounded={"xl"}
@@ -265,8 +265,8 @@ export default function UserProfileEdit({
 
       <Button
         mt={4}
-        bgColor="blackAlpha.900"
-        color="#fff"
+        colorScheme="blue"
+        color="blue.900"
         p={7}
         borderRadius={15}
         onClick={() => {

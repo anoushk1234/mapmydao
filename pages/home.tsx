@@ -38,6 +38,7 @@ import {
   ModalCloseButton,
   ModalHeader,
   ModalFooter,
+  Stack,
 } from "@chakra-ui/react";
 import { FiHome, FiMap, FiSearch } from "react-icons/fi";
 
@@ -84,14 +85,13 @@ const Home: NextPage = () => {
   });
   const [daoList, setDaoList] = useState([]);
   const [attendee, setAttendee] = useState("");
+  const [sideBarTab, setSideBarTab] = useState<string>("profile");
   const [dao, setDao] = useState({});
   const [session, setSession] = useState(undefined);
   const [daoMembers, setDaoMembers] = useState([]);
   const [calldata, setCalldata] = useState(false);
   const [createMeetup, setCreateMeetup] = useState(false);
-  const [markermeetupPopuptext, setMarkermeetupPopuptext] = useState(
-    "Drop this pin where u want to host the meetup"
-  );
+
   const [openMeetupMarker, setOpenMeetupMarker] = useState(false);
   const [markerLocation, setMarkerLocation] = useState({
     lat: 0,
@@ -324,18 +324,11 @@ const Home: NextPage = () => {
         // const popup = new mapboxgl.Popup(Popupnode).setText(
         //   markermeetupPopuptext
         // );
-        ReactDOM.render(
-          <Text color="black">{markermeetupPopuptext}</Text>,
-          Popupnode
-        );
-        const popup = new mapboxgl.Popup(Popupnode).setText(
-          markermeetupPopuptext
-        );
+
         const marker = new mapboxgl.Marker({
           draggable: true,
         })
           .setLngLat([Number(x) + 0.5, y])
-          .setPopup(popup)
           .addTo(map);
 
         marker.on("dragend", async () => {
@@ -707,7 +700,6 @@ const Home: NextPage = () => {
           {/* Column 3 */}
           <Flex
             w={["100%", "100%", "30%"]}
-            bgColor="gray.900"
             p="3%"
             flexDir="column"
             overflow="auto"
@@ -763,22 +755,66 @@ const Home: NextPage = () => {
                 <></>
               )}
             </Select>
-            <UserProfileEdit
-              user={user}
-              dao={dao}
-              setXY={setXY}
-              xy={xy}
-              userID={userID}
-            />
-            <Meetup
-              meetupregion={meetupregion}
-              setDate={setDate}
-              setCreateMeetup={setCreateMeetup}
-              sendMeetupToSupabase={sendMeetupToSupabase}
-              date={date}
-              setMeetTitle={setMeetTitle}
-              markerLocation={markerLocation}
-            />
+            <Stack
+              mt={4}
+              direction="row"
+              justify="space-around"
+              py={2}
+              textAlign="center"
+              rounded="md"
+              borderRadius={30}
+              bgColor="transparent"
+              borderColor="gray.200"
+              border="4px solid"
+            >
+              <Button
+                bg={sideBarTab === "profile" ? "orange.400" : "transparent"}
+                _hover={{
+                  bg: "white",
+                  color: "black",
+                }}
+                borderRadius={35}
+                onClick={() => {
+                  setSideBarTab("createmeetups");
+                }}
+              >
+                Profile
+              </Button>
+              <Button
+                bg={
+                  sideBarTab === "createmeetups" ? "orange.400" : "transparent"
+                }
+                onClick={() => {
+                  setSideBarTab("profile");
+                }}
+                _hover={{
+                  bg: "white",
+                  color: "black",
+                }}
+                borderRadius={35}
+              >
+                Create Meet
+              </Button>
+            </Stack>
+            {sideBarTab === "profile" ? (
+              <UserProfileEdit
+                user={user}
+                dao={dao}
+                setXY={setXY}
+                xy={xy}
+                userID={userID}
+              />
+            ) : (
+              <Meetup
+                meetupregion={meetupregion}
+                setDate={setDate}
+                setCreateMeetup={setCreateMeetup}
+                sendMeetupToSupabase={sendMeetupToSupabase}
+                date={date}
+                setMeetTitle={setMeetTitle}
+                markerLocation={markerLocation}
+              />
+            )}
           </Flex>
         </Flex>
       }
