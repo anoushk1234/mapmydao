@@ -13,13 +13,24 @@ import {
   Heading,
   IconButton,
   Divider,
+  AvatarGroup,
 } from "@chakra-ui/react";
-import { FiChevronUp, FiChevronDown } from "react-icons/fi";
+import { FiChevronUp, FiChevronDown, FiCheck } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { supabase } from "../../utils/supabaseClient";
+import RSVPRow from "./RSVPRow";
 
-const MeetupList = ({ meetupList, changeDisplay, display }: any) => {
+const MeetupList = ({
+  meetupList,
+  changeDisplay,
+  display,
+  rsvp,
+  daoMembers,
+  supabaseID,
+}: any) => {
   return (
     <Flex flexDir="column">
-      <Flex overflow="auto">
+      <Flex overflow="hidden">
         <Table variant="unstyled" mt={4}>
           <Thead>
             <Tr color="gray">
@@ -30,7 +41,8 @@ const MeetupList = ({ meetupList, changeDisplay, display }: any) => {
             </Tr>
           </Thead>
           <Tbody>
-            {meetupList?.map((meetupItem: any, index) => {
+            {meetupList.map((meetupItem: any, index: any) => {
+              // const didRsvp = data?.find((item: any) => item === supabaseID);
               if (display === "show" && meetupItem?.location) {
                 return (
                   <Tr key={index}>
@@ -55,6 +67,31 @@ const MeetupList = ({ meetupList, changeDisplay, display }: any) => {
                     <Td letterSpacing="tight">
                       {meetupItem.location.region ?? "Location not updated"}
                     </Td>
+                    <Td>
+                      <AvatarGroup size="md" max={0}>
+                        {meetupItem.attendees.map(
+                          (attendee: any, index: any) => {
+                            const member = daoMembers.find(
+                              (member: any) => member.id === attendee
+                            );
+
+                            return (
+                              <Avatar
+                                key={index}
+                                name={member?.username}
+                                src={member?.pfp}
+                              />
+                            );
+                          }
+                        )}
+                      </AvatarGroup>
+                    </Td>
+                    <RSVPRow
+                      keyItem={index}
+                      rsvp={rsvp}
+                      meetupItem={meetupItem}
+                      supabaseID={supabaseID}
+                    />
                   </Tr>
                 );
               } else {
@@ -87,6 +124,31 @@ const MeetupList = ({ meetupList, changeDisplay, display }: any) => {
                       <Td>
                         {meetupItem.location.region ?? "Location not found"}
                       </Td>
+                      <Td>
+                        <AvatarGroup size="md" max={0}>
+                          {meetupItem.attendees.map(
+                            (attendee: any, index: any) => {
+                              const member = daoMembers.find(
+                                (member: any) => member.id === attendee
+                              );
+
+                              return (
+                                <Avatar
+                                  key={index}
+                                  name={member?.username}
+                                  src={member?.pfp}
+                                />
+                              );
+                            }
+                          )}
+                        </AvatarGroup>
+                      </Td>
+                      <RSVPRow
+                        keyItem={index + 1000}
+                        rsvp={rsvp}
+                        meetupItem={meetupItem}
+                        supabaseID={supabaseID}
+                      />
                     </Tr>
                   );
                 }

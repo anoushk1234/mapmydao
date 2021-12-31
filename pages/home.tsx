@@ -382,7 +382,7 @@ const Home: NextPage = () => {
 
       if (meetupList.length > 0 && meetupList) {
         meetupList.forEach((meetup, index) => {
-          const { location, date, title,meetup_logo } = meetup;
+          const { location, date, title, meetup_logo } = meetup;
           const { longitude, latitude, reg } = location;
           const meetupmarkerNode = document.createElement("div");
           ReactDOM.render(
@@ -611,6 +611,9 @@ const Home: NextPage = () => {
                   meetupList={meetupList}
                   changeDisplay={changeDisplay}
                   display={display}
+                  rsvp={rsvp}
+                  daoMembers={daoMembers}
+                  supabaseID={supabaseID}
                 />
               ) : (
                 <Flex flexDir="column">
