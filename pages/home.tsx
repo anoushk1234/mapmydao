@@ -42,20 +42,20 @@ import {
 import { FiHome, FiMap, FiSearch } from "react-icons/fi";
 
 import { supabase } from "../utils/supabaseClient";
-import UserProfileEdit from "./components/ProfileEdit";
+import UserProfileEdit from "../components/ProfileEdit";
 declare const window: any;
-import Marker from "./components/Marker";
+import Marker from "../components/Marker";
 import ReactDOM from "react-dom";
 
 import { reverseGeocode } from "../utils/reverseGeocode";
 
-import Meetup from "./components/Meetup";
+import Meetup from "../components/Meetup";
 import moment from "moment";
 
 import { toast } from "react-toastify";
-import MeetupMarker from "./components/MeetupMarker";
-import MeetupList from "./components/MeetupList";
-import Switcher from "./components/Switcher";
+import MeetupMarker from "../components/MeetupMarker";
+import MeetupList from "../components/MeetupList";
+import Switcher from "../components/Switcher";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {

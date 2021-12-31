@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react";
 
 import React, { useState, useEffect } from "react";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase } from "../utils/supabaseClient";
 
 const RSVPRow = ({
   keyItem,
@@ -63,7 +63,7 @@ const RSVPRow = ({
     }
     getRsvped();
   }, [supabaseID, meetupItem?.meet_id]);
-  return typeof window === "undefined" ? null : (
+  return (
     <Tr key={keyItem}>
       <Td>
         <Flex align="center">

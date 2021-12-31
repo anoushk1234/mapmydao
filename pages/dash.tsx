@@ -4,7 +4,7 @@ import Head from "next/head";
 import mapboxgl from "mapbox-gl";
 import { useRouter } from "next/router";
 //@ts-ignore
-import Marker from "./components/Marker";
+import Marker from "../components/Marker";
 import ReactDOM from "react-dom";
 
 import {
@@ -51,9 +51,9 @@ import {
   FiBell,
 } from "react-icons/fi";
 import axios from "axios";
-import Logo from "./components/ui/Logo";
+import Logo from "../components/ui/Logo";
 import { supabase } from "../utils/supabaseClient";
-import UserProfileEdit from "./components/ProfileEdit";
+import UserProfileEdit from "../components/ProfileEdit";
 declare const window: any;
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 const Dash: NextPage = () => {

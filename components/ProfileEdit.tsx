@@ -15,13 +15,13 @@ import {
   IconButton,
   Center,
 } from "@chakra-ui/react";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase } from "../utils/supabaseClient";
 import { FaWindowClose, FaLocationArrow } from "react-icons/fa";
 import React, { useState, useEffect } from "react";
 import Geocode from "react-geocode";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { reverseGeocode } from "../../utils/reverseGeocode";
+import { reverseGeocode } from "../utils/reverseGeocode";
 export default function UserProfileEdit({
   user,
   dao,

@@ -17,7 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { FiChevronUp, FiChevronDown, FiCheck } from "react-icons/fi";
 import { useState, useEffect } from "react";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase } from "../utils/supabaseClient";
 import RSVPRow from "./RSVPRow";
 
 const MeetupList = ({
