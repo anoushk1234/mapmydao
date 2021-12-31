@@ -1,5 +1,5 @@
 import type { AppProps } from "next/app";
-import { ChakraProvider } from "@chakra-ui/provider";
+import { ChakraProvider } from "@chakra-ui/react";
 import theme from "../utils/theme";
 import "@fontsource/lexend/latin.css";
 import "react-datetime/css/react-datetime.css";

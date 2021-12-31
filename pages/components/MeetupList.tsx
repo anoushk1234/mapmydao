@@ -41,119 +41,33 @@ const MeetupList = ({
             </Tr>
           </Thead>
           <Tbody>
-            {meetupList.map((meetupItem: any, index: any) => {
-              // const didRsvp = data?.find((item: any) => item === supabaseID);
-              if (display === "show" && meetupItem?.location) {
-                return (
-                  <Tr key={index}>
-                    <Td>
-                      <Flex align="center">
-                        <Avatar size="sm" mr={2} src={meetupItem.meetup_logo} />
-                        <Flex flexDir="column">
-                          <Heading size="sm" letterSpacing="tighters">
-                            {meetupItem.title}
-                          </Heading>
-                        </Flex>
-                      </Flex>
-                    </Td>
-                    <Td>
-                      {meetupItem.date
-                        .substring(0, 10)
-                        .split("T")[0]
-                        .split("-")
-                        .reverse()
-                        .join("/")}
-                    </Td>
-                    <Td letterSpacing="tight">
-                      {meetupItem.location.region ?? "Location not updated"}
-                    </Td>
-                    <Td>
-                      <AvatarGroup size="md" max={0}>
-                        {meetupItem.attendees.map(
-                          (attendee: any, index: any) => {
-                            const member = daoMembers.find(
-                              (member: any) => member.id === attendee
-                            );
-
-                            return (
-                              <Avatar
-                                key={index}
-                                name={member?.username}
-                                src={member?.pfp}
-                              />
-                            );
-                          }
-                        )}
-                      </AvatarGroup>
-                    </Td>
+            {meetupList &&
+              meetupList.map((meetupItem: any, index: any) => {
+                // const didRsvp = data?.find((item: any) => item === supabaseID);
+                if (display === "show" && meetupItem?.location) {
+                  return (
                     <RSVPRow
                       keyItem={index}
                       rsvp={rsvp}
                       meetupItem={meetupItem}
                       supabaseID={supabaseID}
+                      daoMembers={daoMembers}
                     />
-                  </Tr>
-                );
-              } else {
-                if (index === 0 && meetupItem?.location) {
-                  return (
-                    <Tr key={index}>
-                      <Td>
-                        <Flex align="center">
-                          <Avatar
-                            size="sm"
-                            mr={2}
-                            src={meetupItem.meetup_logo}
-                          />
-                          <Flex flexDir="column">
-                            <Heading size="sm" letterSpacing="tight">
-                              {meetupItem.title}
-                            </Heading>
-                          </Flex>
-                        </Flex>
-                      </Td>
-                      <Td>
-                        {" "}
-                        {meetupItem.date
-                          .substring(0, 10)
-                          .split("T")[0]
-                          .split("-")
-                          .reverse()
-                          .join("/")}
-                      </Td>
-                      <Td>
-                        {meetupItem.location.region ?? "Location not found"}
-                      </Td>
-                      <Td>
-                        <AvatarGroup size="md" max={0}>
-                          {meetupItem.attendees.map(
-                            (attendee: any, index: any) => {
-                              const member = daoMembers.find(
-                                (member: any) => member.id === attendee
-                              );
-
-                              return (
-                                <Avatar
-                                  key={index}
-                                  name={member?.username}
-                                  src={member?.pfp}
-                                />
-                              );
-                            }
-                          )}
-                        </AvatarGroup>
-                      </Td>
+                  );
+                } else {
+                  if (index === 0 && meetupItem?.location) {
+                    return (
                       <RSVPRow
-                        keyItem={index + 1000}
+                        keyItem={index}
                         rsvp={rsvp}
                         meetupItem={meetupItem}
                         supabaseID={supabaseID}
+                        daoMembers={daoMembers}
                       />
-                    </Tr>
-                  );
+                    );
+                  }
                 }
-              }
-            })}
+              })}
           </Tbody>
         </Table>
       </Flex>
