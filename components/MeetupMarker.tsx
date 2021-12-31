@@ -17,18 +17,21 @@ export default function MeetupMarker({
     <>
       <Tada>
         <Circle
-          size="50%"
-          color="blue.500"
+          maxH="65px"
+          maxW="65px"
           onClick={() => {
             setOpenMeetupMarker(true);
             setMeetup(meetup);
           }}
-          borderRadius="50%"
-          left="50%"
-          top="50%"
+          borderRadius={50}
         >
           {meetup_logo && meetup_logo.length > 0 ? (
-            <Avatar size="45px" borderRadius={50} src={meetup_logo} />
+            <Avatar
+              maxH="65px"
+              maxW="65px"
+              borderRadius={50}
+              src={meetup_logo}
+            />
           ) : (
             <SiGotomeeting
               style={{
