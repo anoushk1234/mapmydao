@@ -185,11 +185,19 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
+    
+    // const getUsersDao = async () => {
+    //   const {data, error} = await supabase.from("users").select("dao").eq("id", supabaseID);
+    //   console.log(data, "userdao");
+    //   return data?data[0].dao:null
+    // };
+
     const getDaoList = async () => {
+     // const users_daoID = await getUsersDao();
       const { data, error } = await supabase
-        .from("daos")
+        .from("users")
         .select()
-        .eq("signer_id", userID);
+        .eq("user_id", userID);
       // console.log(data, "daolist get");
       setDaoList(data as any);
     };
