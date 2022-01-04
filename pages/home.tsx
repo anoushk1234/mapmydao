@@ -595,7 +595,7 @@ const Home: NextPage = () => {
                       <Thead>
                         <Tr color="gray">
                           <Th>Name of Member</Th>
-                          <Th>Tole</Th>
+                          <Th>Role</Th>
                           <Th isNumeric>Location</Th>
                         </Tr>
                       </Thead>
