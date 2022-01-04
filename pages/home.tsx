@@ -186,20 +186,37 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     
-    // const getUsersDao = async () => {
-    //   const {data, error} = await supabase.from("users").select("dao").eq("id", supabaseID);
-    //   console.log(data, "userdao");
-    //   return data?data[0].dao:null
-    // };
-
-    const getDaoList = async () => {
-     // const users_daoID = await getUsersDao();
+    const getUsersDao = async () => {
       const { data, error } = await supabase
         .from("users")
         .select()
         .eq("user_id", userID);
+        console.log(data, "data");
+      console.log(data, "userdao");
+      let dao_list:any = [];
+      data?.forEach((user: any) => {
+        dao_list.push(user.dao);
+      } );
+      return dao_list;
+        
+    };
+
+    const getDaoList = async () => {
+     const users_dao_list = await getUsersDao();
+      console.log(users_dao_list, "users_dao_list");
       // console.log(data, "daolist get");
-      setDaoList(data as any);
+      users_dao_list.forEach(async(dao: any) => {
+        const { data, error } = await supabase
+          .from("daos")
+          .select()
+          .eq("uid", dao);
+        //console.log(data, "daolist2");
+        if (data != null && data != undefined && data.length > 0) {
+          setDaoList((prevState: any) => [...prevState, data[0]]);
+        }
+        console.log(daoList, "daoList final");
+      }
+      );
     };
     getDaoList();
   }, [userID]);
@@ -218,6 +235,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     console.log("dao meme use effect fored");
+  
     daoMembers.length > 0
       ? daoMembers.forEach((member, index) => {
           if (member.location != null) {
@@ -740,6 +758,7 @@ const Home: NextPage = () => {
               placeholder="Select a Dao"
               onChange={(e) => {
                 // console.log(typeof e.target.value);
+                console.log(daoList,"check daolist");
                 console.log(
                   daoList.find((dao) => dao.uid === e.target.value)?.uid
                 );
