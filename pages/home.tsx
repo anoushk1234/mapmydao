@@ -802,7 +802,7 @@ const Home: NextPage = () => {
                 }}
                 borderRadius={35}
                 onClick={() => {
-                  setSideBarTab("createmeetups");
+                  setSideBarTab("profile");
                 }}
               >
                 Profile
@@ -812,7 +812,7 @@ const Home: NextPage = () => {
                   sideBarTab === "createmeetups" ? "orange.400" : "transparent"
                 }
                 onClick={() => {
-                  setSideBarTab("profile");
+                  setSideBarTab("createmeetups");
                 }}
                 _hover={{
                   bg: "white",
