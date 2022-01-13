@@ -103,26 +103,52 @@ const Home: NextPage = () => {
   });
   const [features, setFeatures] = useState<any[]>([]);
   useEffect(() => {
-    setSession(supabase.auth.session() as any);
+    const session = supabase.auth.session();
+    setSession(session as any);
+    setUser(session?.user ?? null);
+    setUserID(session?.user?.user_metadata?.provider_id ?? null);
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session as any);
+        setUser(session?.user ?? null);
+        setUserID(session?.user?.user_metadata?.provider_id ?? null);
+      }
+    );
+    // console.log(
+    //   session?.provider_token,
+    //   session?.access_token,
+    //   "this is the session"
+    // );
+    return () => {
+      authListener?.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session as any);
-      console.log(session);
-      setUser(session?.user != null ? session?.user : {});
-      setUserID(
-        session?.user != null ? session?.user?.user_metadata?.provider_id : ""
-      );
-      const getThisUser = async () => {
-        const { data, error } = await supabase
-          .from("users")
-          .select("id")
-          .eq("user_id", session?.user?.user_metadata?.provider_id);
-        setSupabaseID(data ? data[0]?.id : "");
-        console.log(data);
-      };
-      getThisUser();
-    });
+    // supabase.auth.onAuthStateChange((_event, session) => {
+    //   setSession(session as any);
+    //   console.log(
+    //     session?.provider_token.toString().substring(0, 6),
+    //     session?.access_token.toString().substring(0, 10),
+    //     "this is the onAuthStateChange session"
+    //   );
+    //   setUser(session?.user != null ? session?.user : {});
+    // setUserID(
+    //   session?.user != null ? session?.user?.user_metadata?.provider_id : ""
+    // );
+    // });
   }, []);
+
+  useEffect(() => {
+    const getThisUser = async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id")
+        .eq("user_id", session?.user?.user_metadata?.provider_id);
+      setSupabaseID(data ? data[0]?.id : "");
+      // console.log(data);
+    };
+    getThisUser();
+  }, [session]);
 
   useEffect(() => {
     const getSupabaseUser = async () => {
@@ -185,27 +211,25 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    
     const getUsersDao = async () => {
       const { data, error } = await supabase
         .from("users")
         .select()
         .eq("user_id", userID);
-        console.log(data, "data");
+      console.log(data, "data");
       console.log(data, "userdao");
-      let dao_list:any = [];
+      let dao_list: any = [];
       data?.forEach((user: any) => {
         dao_list.push(user.dao);
-      } );
+      });
       return dao_list;
-        
     };
 
     const getDaoList = async () => {
-     const users_dao_list = await getUsersDao();
+      const users_dao_list = await getUsersDao();
       console.log(users_dao_list, "users_dao_list");
       // console.log(data, "daolist get");
-      users_dao_list.forEach(async(dao: any) => {
+      users_dao_list.forEach(async (dao: any) => {
         const { data, error } = await supabase
           .from("daos")
           .select()
@@ -215,8 +239,7 @@ const Home: NextPage = () => {
           setDaoList((prevState: any) => [...prevState, data[0]]);
         }
         console.log(daoList, "daoList final");
-      }
-      );
+      });
     };
     getDaoList();
   }, [userID]);
@@ -235,7 +258,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     console.log("dao meme use effect fored");
-  
+
     daoMembers.length > 0
       ? daoMembers.forEach((member, index) => {
           if (member.location != null) {
@@ -496,11 +519,7 @@ const Home: NextPage = () => {
                   <PopoverTrigger>
                     <Avatar
                       my={2}
-                      src={
-                        user.user_metadata != null
-                          ? user.user_metadata.avatar_url
-                          : ""
-                      }
+                      src={user.user_metadata.avatar_url ?? null}
                     />
                   </PopoverTrigger>
                   <Portal>
@@ -758,7 +777,7 @@ const Home: NextPage = () => {
               placeholder="Select a Dao"
               onChange={(e) => {
                 // console.log(typeof e.target.value);
-                console.log(daoList,"check daolist");
+                console.log(daoList, "check daolist");
                 console.log(
                   daoList.find((dao) => dao.uid === e.target.value)?.uid
                 );
