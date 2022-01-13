@@ -35,6 +35,7 @@ export default function UserProfileEdit({
   const [address, setAddress] = useState<string>("");
   const [acc, setAcc] = useState<string>("");
   const [role, setRole] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   var options = {
     enableHighAccuracy: true,
@@ -58,6 +59,7 @@ export default function UserProfileEdit({
   }
 
   const uploadToCloudinary = async () => {
+
     const formData = new FormData();
 
     formData.append("file", file as any);
@@ -67,6 +69,7 @@ export default function UserProfileEdit({
       "https://api.cloudinary.com/v1_1/metapass/image/upload",
       formData
     );
+    
     return post.data.secure_url;
   };
   //   useEffect(() => {
@@ -74,6 +77,7 @@ export default function UserProfileEdit({
     if (userID) {
       const reg = await reverseGeocode(long, lat, false);
       console.log(reg);
+      toast.loading("Updating location...");
       const { data, error } = await supabase
         .from("users")
         .update({
@@ -86,7 +90,7 @@ export default function UserProfileEdit({
         })
         .match({ user_id: userID });
       //console.log(data);
-      toast.success("location updated");
+      
     }
   }
   // async function sendRegiontoSupabase() {
@@ -125,17 +129,44 @@ export default function UserProfileEdit({
   }
   async function sendRoleToSupabase(role: any) {
     const id = user?.user_metadata.provider_id;
+    const tid = toast.loading("Please wait...",{
+      position: "top-right",
+      autoClose: false,
+      isLoading: true,
+    })
+    
+   
     const { data, error } = await supabase
-      .from("users")
-      .update({
-        role: role,
-      })
-      .match({ user_id: id });
+    .from("users")
+    .update({
+      role: role,
+    })
+    .match({ user_id: id })
+    data?toast.update(tid, {
+      render: "Role updated",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    }) : toast.update(tid, {
+      render: "Role not updated",
+      type: "error",
+      isLoading: false,
+      autoClose: 2000,
+    })
+      // setLoading(false);
     // console.log(data);
-    toast.success("profile updated");
+    // error? toast.error("Error updating role"): toast.success("profile updated");
+    
+    
   }
-  async function sendPfpToSupabase(pfp: any) {
+  async function sendPfpToSupabase() {
     const id = user?.user_metadata.provider_id;
+    const tid = toast.loading("Please wait...",{
+      position: "top-right",
+      autoClose: false,
+      isLoading: true,
+    })
+    const pfp = await uploadToCloudinary();
     const { data, error } = await supabase
       .from("users")
       .update({
@@ -143,11 +174,20 @@ export default function UserProfileEdit({
       })
       .match({ user_id: id });
     //console.log(data);
-    toast.success("pfp updated");
+    data? toast.update(tid, {
+      render: "Profile picture updated",
+      type: "success",
+      isLoading: false,
+      autoClose: 2000,
+    }) : toast.update(tid, {
+      render: "Profile picture not updated",
+      type: "error",
+      isLoading: false,
+      autoClose: 2000,
+    })
   }
 
-  //     sendCoordinatesToSupabase();
-  //   }, [long, lat, address, acc]);
+ 
 
   useEffect(() => {
     getSupabaseUser();
@@ -270,10 +310,10 @@ export default function UserProfileEdit({
         p={7}
         borderRadius={15}
         onClick={() => {
-          uploadToCloudinary().then((url) => {
+          
             sendRoleToSupabase(role);
-            sendPfpToSupabase(url);
-          });
+            sendPfpToSupabase();
+          
         }}
       >
         Update Profile
