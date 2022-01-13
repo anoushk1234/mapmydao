@@ -119,6 +119,7 @@ const Home: NextPage = () => {
     const session = supabase.auth.session()
     setSession(session)
     setUser(session?.user ?? null)
+    setUserID(session?.user?.user_metadata?.provider_id ?? null)
     console.log(
       session?.provider_token,
       session?.access_token,
@@ -128,11 +129,13 @@ const Home: NextPage = () => {
     const { data: authListener }:any = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+      setUserID(session?.user?.user_metadata?.provider_id ?? null)
     })
     console.log(
       session?.provider_token,
       session?.access_token,
-      "this is the session"
+      "this is the session",
+      user
     );
     return () => {
       authListener.unsubscribe()
@@ -245,8 +248,8 @@ const Home: NextPage = () => {
       });
     };
     getDaoList();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userID]); // eslint-disable-next-line react-hooks/exhaustive-deps
+  
+  }, [userID]); 
 
   useEffect(() => {
     const getMeetupList = async () => {
@@ -858,6 +861,7 @@ const Home: NextPage = () => {
                 xy={xy}
                 userID={userID}
               />
+              
             ) : (
               <Meetup
                 meetupregion={meetupregion}
@@ -868,7 +872,10 @@ const Home: NextPage = () => {
                 setMeetTitle={setMeetTitle}
                 markerLocation={markerLocation}
               />
-            )}
+            )
+            }{
+              console.log(user,"user-userid",userID)
+            }
           </Flex>
         </Flex>: null
       }

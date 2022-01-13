@@ -111,7 +111,7 @@ export default function UserProfileEdit({
       .from("users")
       .select()
       .eq("user_id", userID);
-
+    console.log(userID);
     console.log(data);
     if (data[0] != null) {
       setRole(data[0].role); //ts-ignore
