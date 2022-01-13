@@ -83,16 +83,16 @@ const Home: NextPage = () => {
   });
   const [user, setUser] = useState<any>({
     usermetadata: {
-      provider_id: undefined,
-      role: undefined,
-      avatar_url: undefined,
+      provider_id: null,
+      role: null,
+      avatar_url: null,
     },
   });
   const [daoList, setDaoList] = useState<any[]>([]);
   const [attendee, setAttendee] = useState("");
   const [sideBarTab, setSideBarTab] = useState<string>("profile");
   const [dao, setDao] = useState({});
-  const [session, setSession] = useState<any>(undefined);
+  const [session, setSession] = useState<any>(null);
   const [daoMembers, setDaoMembers] = useState([]);
   const [calldata, setCalldata] = useState(false);
   const [createMeetup, setCreateMeetup] = useState(false);
@@ -185,7 +185,7 @@ const Home: NextPage = () => {
     getDaoMembersFromSupabase();
 
     //console.log(daoMembers, "daomems");
-  }, [userID, dao]);
+  }, [userID, dao]); // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const sendMeetupToSupabase = async (
     long: any,
@@ -247,7 +247,7 @@ const Home: NextPage = () => {
       });
     };
     getDaoList();
-  }, [userID]);
+  }, [userID]); // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const getMeetupList = async () => {
@@ -430,7 +430,7 @@ const Home: NextPage = () => {
     meetupList,
     tab,
     calldata,
-  ]); // eslint-disable-line react-hooks/exhaustive-deps
+  ]); // eslint-disable-line
   return (
     <>
       <Head>
