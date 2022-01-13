@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import { NextPage } from "next";
 import React, { useState, useEffect, useRef } from "react";
 import Head from "next/head";
@@ -75,6 +76,10 @@ const Home: NextPage = () => {
     meet_id: "",
     title: "",
     attendees: [],
+    description: "",
+    location: {
+      region: "",
+    },
   });
   const [user, setUser] = useState<any>({
     usermetadata: {
@@ -83,11 +88,11 @@ const Home: NextPage = () => {
       avatar_url: undefined,
     },
   });
-  const [daoList, setDaoList] = useState([]);
+  const [daoList, setDaoList] = useState<any[]>([]);
   const [attendee, setAttendee] = useState("");
   const [sideBarTab, setSideBarTab] = useState<string>("profile");
   const [dao, setDao] = useState({});
-  const [session, setSession] = useState(undefined);
+  const [session, setSession] = useState<any>(undefined);
   const [daoMembers, setDaoMembers] = useState([]);
   const [calldata, setCalldata] = useState(false);
   const [createMeetup, setCreateMeetup] = useState(false);
@@ -101,7 +106,7 @@ const Home: NextPage = () => {
     x: -104.9876,
     y: 39.7405,
   });
-  const [features, setFeatures] = useState<any[]>([]);
+  const [features, setFeatures] = useState<any>([]);
   useEffect(() => {
     const session = supabase.auth.session();
     setSession(session as any);
@@ -188,7 +193,7 @@ const Home: NextPage = () => {
     reg: any,
     url: any
   ) => {
-    const { data, error } = await supabase.from("meetups").insert([
+    const { data, error }: any = await supabase.from("meetups").insert([
       {
         location: {
           longitude: long,
@@ -204,7 +209,7 @@ const Home: NextPage = () => {
       },
     ]);
     console.log(data, "meetupdata");
-    data.length > 0
+    data?.length > 0
       ? toast.success("Meetup Created")
       : toast.error("Something went wrong");
     setCalldata(true);
@@ -260,9 +265,9 @@ const Home: NextPage = () => {
     console.log("dao meme use effect fored");
 
     daoMembers.length > 0
-      ? daoMembers.forEach((member, index) => {
+      ? daoMembers.forEach((member: any, index: any) => {
           if (member.location != null) {
-            setFeatures((features) => [
+            setFeatures((features: any) => [
               ...features,
               {
                 id: member?.user_id,
@@ -315,7 +320,7 @@ const Home: NextPage = () => {
     // console.log(x, y, "xy");
     if (x != undefined && y != undefined && tab === "map") {
       const map = new mapboxgl.Map({
-        container: mapContainerRef.current, // container ID
+        container: mapContainerRef.current ?? "", // container ID
         style: "mapbox://styles/mapbox/streets-v11", // style URL
         center: [x, y], // starting position
         zoom: 8, // starting zoom
@@ -335,14 +340,14 @@ const Home: NextPage = () => {
       map?.addControl(new mapboxgl.NavigationControl(), "bottom-right");
       map?.on("moveend", async () => {
         // iterate through the feature collection and append marker to the map for each feature
-        features.forEach((result, index) => {
+        features.forEach((result: any, index: any) => {
           const { id, geometry } = result;
 
           // create marker node
           const markerNode = document.createElement("div");
 
           const findDaoMemberbyUser_id = (user_id: string) => {
-            return daoMembers.find((member) => member.user_id === user_id);
+            return daoMembers.find((member: any) => member.user_id === user_id);
           };
           // console.log(
           //   index,
@@ -354,11 +359,11 @@ const Home: NextPage = () => {
           //   features
           // );
 
-          const UserbyUID = findDaoMemberbyUser_id(id);
+          const UserbyUID: any = findDaoMemberbyUser_id(id);
           console.log(UserbyUID, "userbyUID");
           UserbyUID != undefined
             ? ReactDOM.render(
-                <Marker id={id} pfp={UserbyUID?.pfp} />,
+                <Marker id={id} pfp={UserbyUID.pfp ?? ""} />,
                 markerNode
               )
             : console.log("no dao member");
@@ -702,14 +707,14 @@ const Home: NextPage = () => {
                       Attendees
                     </Heading>
                     {meetup?.attendees.map((attendee: any, index: number) => {
-                      const user = daoMembers.find(
+                      const user: any = daoMembers.find(
                         (member: any) => (member.id = attendee)
                       );
                       console.log(user);
                       return (
                         <Flex key={index}>
                           <Avatar size="sm" mr={2} src={user?.pfp} />
-                          <Text>{user?.username}</Text>
+                          <Text>{user.username ?? "Name Unavailable"}</Text>
                         </Flex>
                       );
                     })}
@@ -728,9 +733,10 @@ const Home: NextPage = () => {
                       onClick={() => {
                         //redirect to google calendar with info about the meetup
                         window.open(
-                          `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${meetup.title}&dates=${meetup.start_time}/${meetup.end_time}&location=${meetup.location.region}&details=${meetup.description}`,
+                          `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${meetup.title}&location=${meetup.location.region}&details=${meetup.description}`,
                           "_blank"
                         );
+                        //&dates=${meetup.start_time}/${meetup.end_time}
                       }}
                       variant="ghost"
                       ml={3}
@@ -779,13 +785,15 @@ const Home: NextPage = () => {
                 // console.log(typeof e.target.value);
                 console.log(daoList, "check daolist");
                 console.log(
-                  daoList.find((dao) => dao.uid === e.target.value)?.uid
+                  daoList.find((dao: any) => dao?.uid === e.target.value)?.uid
                 );
                 setDao(
-                  () => daoList.find((dao) => dao.uid === e.target.value)?.uid
+                  () =>
+                    daoList.find((dao: any) => dao?.uid === e.target.value)?.uid
                 );
                 //  console.log(dao);
-                return daoList.find((dao) => dao.uid === e.target.value)?.uid;
+                return daoList.find((dao: any) => dao?.uid === e.target.value)
+                  ?.uid;
               }}
             >
               {/* {dao.length > 1 ? console.log(dao) : null} */}

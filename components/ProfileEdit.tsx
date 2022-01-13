@@ -107,7 +107,7 @@ export default function UserProfileEdit({
   //   }
   // }
   async function getSupabaseUser() {
-    const { data, error } = await supabase
+    const { data, error }: any = await supabase
       .from("users")
       .select()
       .eq("user_id", userID);
