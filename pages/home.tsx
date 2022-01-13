@@ -68,7 +68,7 @@ import Switcher from "../components/Switcher";
 // }
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
-const Home: NextPage = ({ sesh }: any) => {
+const Home: NextPage = () => {
   const mapContainerRef = useRef(null);
   const [display, changeDisplay] = useState("hide");
   const [value, changeValue] = useState(1);
@@ -116,25 +116,25 @@ const Home: NextPage = ({ sesh }: any) => {
   });
   const [features, setFeatures] = useState<any>([]);
   useEffect(() => {
-    // const session = supabase.auth.session();
-    setSession(sesh as any);
-    setUser(sesh?.user ?? null);
-    setUserID(sesh?.user?.user_metadata?.provider_id ?? null);
-    // const { data: authListener } = supabase.auth.onAuthStateChange(
-    //   async (event, session) => {
-    //     setSession(session as any);
-    //     setUser(session?.user ?? null);
-    //     setUserID(session?.user?.user_metadata?.provider_id ?? null);
-    //   }
-    // );
+    const session = supabase.auth.session();
+    setSession(session as any);
+    setUser(session?.user ?? null);
+    setUserID(session?.user?.user_metadata?.provider_id ?? null);
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session as any);
+        setUser(session?.user ?? null);
+        setUserID(session?.user?.user_metadata?.provider_id ?? null);
+      }
+    );
     // console.log(
     //   session?.provider_token,
     //   session?.access_token,
     //   "this is the session"
     // );
-    // return () => {
-    //   authListener?.unsubscribe();
-    // };
+    return () => {
+      authListener?.unsubscribe();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
 
     // supabase.auth.onAuthStateChange((_event, session) => {
@@ -149,7 +149,7 @@ const Home: NextPage = ({ sesh }: any) => {
     //   session?.user != null ? session?.user?.user_metadata?.provider_id : ""
     // );
     // });
-  }, [sesh]);
+  }, []);
 
   useEffect(() => {
     const getThisUser = async () => {
@@ -889,26 +889,3 @@ const Home: NextPage = ({ sesh }: any) => {
 
 export default Home;
 
-export async function getServerSideProps() {
-  // Fetch data from external API
-  const getSession = () => {
-    const session = supabase.auth.session();
-    if (session) {
-      return { props: { session } };
-    }
-    getSession();
-    // setUser(session?.user ?? null);
-    // setUserID(session?.user?.user_metadata?.provider_id ?? null);
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        return { props: { session } };
-      }
-    );
-
-    return () => {
-      authListener?.unsubscribe();
-    };
-
-    // Pass data to the page via props
-  };
-}
