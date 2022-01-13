@@ -185,6 +185,7 @@ const Home: NextPage = () => {
     getDaoMembersFromSupabase();
 
     //console.log(daoMembers, "daomems");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userID, dao]); // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const sendMeetupToSupabase = async (
@@ -247,6 +248,7 @@ const Home: NextPage = () => {
       });
     };
     getDaoList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userID]); // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -422,6 +424,7 @@ const Home: NextPage = () => {
       // clean  up on unmount
       return () => map?.remove();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     xy,
     features,
@@ -524,7 +527,7 @@ const Home: NextPage = () => {
                   <PopoverTrigger>
                     <Avatar
                       my={2}
-                      src={user.user_metadata.avatar_url ?? null}
+                      src={user?.user_metadata?.avatar_url ?? null}
                     />
                   </PopoverTrigger>
                   <Portal>
