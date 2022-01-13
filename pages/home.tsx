@@ -58,6 +58,7 @@ import { toast } from "react-toastify";
 import MeetupMarker from "../components/MeetupMarker";
 import MeetupList from "../components/MeetupList";
 import Switcher from "../components/Switcher";
+import SafeHydrate from "../utils/SafeHydrate";
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
 const Home: NextPage = () => {
@@ -435,7 +436,7 @@ const Home: NextPage = () => {
     calldata,
   ]); // eslint-disable-line
   return (
-    <>
+    <SafeHydrate>
       <Head>
         <title>Dashboard</title>
         <link
@@ -875,7 +876,7 @@ const Home: NextPage = () => {
           </Flex>
         </Flex>
       }
-    </>
+    </SafeHydrate>
   );
 };
 
