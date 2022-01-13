@@ -100,7 +100,7 @@ const Home: NextPage = () => {
   const [attendee, setAttendee] = useState("");
   const [sideBarTab, setSideBarTab] = useState<string>("profile");
   const [dao, setDao] = useState({});
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<any>({});
   const [daoMembers, setDaoMembers] = useState([]);
   const [calldata, setCalldata] = useState(false);
   const [createMeetup, setCreateMeetup] = useState(false);
@@ -116,39 +116,28 @@ const Home: NextPage = () => {
   });
   const [features, setFeatures] = useState<any>([]);
   useEffect(() => {
-    const session = supabase.auth.session();
-    setSession(session as any);
-    setUser(session?.user ?? null);
-    setUserID(session?.user?.user_metadata?.provider_id ?? null);
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session as any);
-        setUser(session?.user ?? null);
-        setUserID(session?.user?.user_metadata?.provider_id ?? null);
-      }
+    const session = supabase.auth.session()
+    setSession(session)
+    setUser(session?.user ?? null)
+    console.log(
+      session?.provider_token,
+      session?.access_token,
+      "this is the session"
     );
-    // console.log(
-    //   session?.provider_token,
-    //   session?.access_token,
-    //   "this is the session"
-    // );
+    setUserID(session?.user?.user_metadata?.provider_id ?? null);
+    const { data: authListener }:any = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+    })
+    console.log(
+      session?.provider_token,
+      session?.access_token,
+      "this is the session"
+    );
     return () => {
-      authListener?.unsubscribe();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-
-    // supabase.auth.onAuthStateChange((_event, session) => {
-    //   setSession(session as any);
-    //   console.log(
-    //     session?.provider_token.toString().substring(0, 6),
-    //     session?.access_token.toString().substring(0, 10),
-    //     "this is the onAuthStateChange session"
-    //   );
-    //   setUser(session?.user != null ? session?.user : {});
-    // setUserID(
-    //   session?.user != null ? session?.user?.user_metadata?.provider_id : ""
-    // );
-    // });
+      authListener.unsubscribe()
+    }
+    
   }, []);
 
   useEffect(() => {
@@ -328,13 +317,13 @@ const Home: NextPage = () => {
   useEffect(() => {
     let { x, y } = xy;
     // console.log(x, y, "xy");
-    if (x != undefined && y != undefined && tab === "map") {
+    if (x != undefined && y != undefined && tab === "map" && mapContainerRef.current) {
       const map = new mapboxgl.Map({
-        container: mapContainerRef.current ?? "", // container ID
+        container: mapContainerRef.current , // container ID
         style: "mapbox://styles/mapbox/streets-v11", // style URL
         center: [x, y], // starting position
         zoom: 8, // starting zoom
-      });
+      }) 
       map?.addControl(
         new mapboxgl.GeolocateControl({
           positionOptions: {
@@ -432,15 +421,15 @@ const Home: NextPage = () => {
       // clean  up on unmount
       return () => map?.remove();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [
     xy,
+    user,
     features,
-    mapContainerRef.current,
+    mapContainerRef,
     createMeetup,
     meetupList,
     tab,
-    calldata,
   ]); // eslint-disable-line
   return (
     <>
@@ -451,7 +440,7 @@ const Home: NextPage = () => {
           rel="stylesheet"
         />
       </Head>
-      {
+      {user?
         <Flex
           h={[null, null, "100vh"]}
           maxW="2000px"
@@ -881,7 +870,7 @@ const Home: NextPage = () => {
               />
             )}
           </Flex>
-        </Flex>
+        </Flex>: null
       }
     </>
   );
